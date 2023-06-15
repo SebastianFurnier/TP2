@@ -89,15 +89,7 @@ void mostrar_opciones(menu_t* menu)
 	lista_iterador_destruir(iterador_opciones);
 }
 
-void* seleccionar_opcion(menu_t* menu, char* opcion)
-{
-	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, opcion);
 
-	if (!opcion)
-		return NULL;
-	opcion_actual->funcion();
-
-}
 
 menu_t* crear_menu()
 {

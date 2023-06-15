@@ -1,11 +1,11 @@
 #include "src/tp1.h"
+#include "./menu/menu.c"
+#include "./menu/lista.h"
 
 int main()
 {
-	//Crear menu
-	//Mostrar menu
-	//Interactuar con el usuario
-	//Liberar memoria
+	menu_t* menu = crear_menu();
+	destruir_menu(menu);
 
 	return 0;
 }
