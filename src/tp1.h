@@ -15,7 +15,8 @@ typedef struct _hospital_pkm_t hospital_t;
 /**
  * Lee un archivo con pokemones y crea un hospital con esos pokemones.
  *
- * Si alguna de las líneas del archivo se encuentra mal formateada, debe ser considerado un error.
+ * Si alguna de las líneas del archivo se encuentra mal formateada, 
+ * debe ser considerado un error.
  *
  * Si el archivo no contiene al menos un pokemon, se debe devolver NULL
  *

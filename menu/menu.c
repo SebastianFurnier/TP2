@@ -13,7 +13,7 @@ typedef struct
 {
 	char titulo_uno[CANT_MAX_TITULO];
 	char titulo_dos[CANT_MAX_TITULO];
-	void (*funcion)(void*, void*);
+	void (*funcion)();
 	char descripcion[CANT_MAX_DESCRIPCION];
 }opcion_t;
 
@@ -72,7 +72,7 @@ opcion_t* crear_opcion(char* titulo_uno, char* titulo_dos, char* descripcion,voi
 	return nueva_opcion;
 }
 
-void mostrar_opciones(menu_t* menu)
+void menu_mostrar_opciones(menu_t* menu)
 {
 	lista_iterador_t* iterador_opciones = lista_iterador_crear(menu->opciones);
 	if (!iterador_opciones)
@@ -89,7 +89,15 @@ void mostrar_opciones(menu_t* menu)
 	lista_iterador_destruir(iterador_opciones);
 }
 
-
+void menu_seleccionar_opcion(menu_t* menu, char* opcion)
+{
+	texto_a_minuscula(opcion);
+	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, opcion);
+	if (!opcion_actual)
+		return;
+	printf("\n%s\n", opcion_actual->titulo_dos);
+	opcion_actual->funcion();
+}
 
 menu_t* crear_menu()
 {
