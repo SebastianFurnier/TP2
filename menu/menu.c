@@ -13,13 +13,14 @@ typedef struct
 {
 	char titulo_uno[CANT_MAX_TITULO];
 	char titulo_dos[CANT_MAX_TITULO];
-	void (*funcion)();
+	bool (*funcion)(void*, void*);
 	char descripcion[CANT_MAX_DESCRIPCION];
 }opcion_t;
 
 typedef struct menu
 {
 	lista_t* opciones;
+	size_t cantidad_opciones;
 }menu_t;
 
 int comparador(void* elemento_uno, void* elemento_dos)
@@ -45,7 +46,7 @@ void texto_a_minuscula(char texto[])
     }
 }
 
-opcion_t* crear_opcion(char* titulo_uno, char* titulo_dos, char* descripcion,void (*f)(void*, void*))
+opcion_t* crear_opcion(char* titulo_uno, char* titulo_dos, char* descripcion, bool (*f)(void*, void*))
 {
 	if ((strlen(titulo_uno) == 0 && strlen(titulo_dos) == 0)){
 		printf("No puede crearse una opcion sin titulo");
@@ -80,6 +81,8 @@ void menu_mostrar_opciones(menu_t* menu)
 	
 	opcion_t* opcion_actual = (opcion_t*)lista_iterador_elemento_actual(iterador_opciones);
 
+	printf("\nSeleccione una de las opciones:\n\n");
+
 	while (opcion_actual)
 	{
 		printf("- %s (%s).\n", opcion_actual->titulo_uno, opcion_actual->titulo_dos);
@@ -89,14 +92,42 @@ void menu_mostrar_opciones(menu_t* menu)
 	lista_iterador_destruir(iterador_opciones);
 }
 
-void menu_seleccionar_opcion(menu_t* menu, char* opcion)
+bool mostrar_descripcion(void* opcion, void* contexto)
 {
-	texto_a_minuscula(opcion);
-	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, opcion);
-	if (!opcion_actual)
-		return;
-	printf("\n%s\n", opcion_actual->titulo_dos);
-	opcion_actual->funcion();
+	if (!opcion)
+		return false;
+	opcion_t* opcion_actual = (opcion_t*)opcion;
+	printf("\n- %s (%s): %s.\n",opcion_actual->titulo_uno, opcion_actual->titulo_dos, opcion_actual->descripcion);
+	return true;
+}
+
+bool menu_mostrar_ayuda(void* menu, void* contexto)
+{
+	menu_t* menu_aux = (menu_t*)menu;
+	size_t cantidad_recorrida = lista_con_cada_elemento(menu_aux->opciones, mostrar_descripcion, NULL);
+
+	if(cantidad_recorrida != menu_aux->cantidad_opciones)
+		return false;
+	return true;
+}
+
+bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto, void* contexto_aux)
+{
+	size_t largo = strlen(opcion);
+	char titulo_aux[largo];
+	strcpy(titulo_aux, opcion);
+	titulo_aux[largo-1] = '\0';
+	texto_a_minuscula(titulo_aux);
+
+	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
+	if (!opcion_actual){
+		printf("\nIngrese una opcion valida.");
+		return true;
+	}
+
+	if(opcion_actual->funcion(contexto, contexto_aux))
+		return true;
+	return false;
 }
 
 menu_t* crear_menu()
@@ -108,6 +139,7 @@ menu_t* crear_menu()
 		return NULL;
 	
 	nuevo_menu->opciones = lista_opciones;
+	nuevo_menu->cantidad_opciones = 0;
 	
 	return nuevo_menu;
 }
@@ -119,6 +151,7 @@ menu_t* insertar_opcion_menu(menu_t* menu, opcion_t* nueva_opcion)
 	void* puntero_valido = lista_insertar(menu->opciones, nueva_opcion);
 	if (!puntero_valido)
 		return NULL;
+	menu->cantidad_opciones++;
 	return menu;
 }
 

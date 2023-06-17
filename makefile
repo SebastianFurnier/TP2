@@ -7,7 +7,7 @@ all: clean valgrind-chanutron tp2
 correr: compilar
 	valgrind $(VALGRIND_FLAGS) ./tp2
 compilar:
-	$(CC) $(CFLAGS) ./tp2.c ./menu/lista.c -o tp2
+	$(CC) $(CFLAGS) ./tp2.c ./menu/lista.c ./src/*.c -o tp2
 
 valgrind-chanutron: pruebas_chanutron
 	valgrind $(VALGRIND_FLAGS) ./pruebas_chanutron
