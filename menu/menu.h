@@ -3,6 +3,7 @@
 
 
 #include "stdbool.h"
+#include "stddef.h"
 
 typedef struct opcion opcion_t;
 typedef struct menu menu_t;
@@ -31,6 +32,12 @@ bool menu_mostrar_opciones(menu_t* menu);
  * Muestra la descripcion alojada en cada TDA opcion.
  */
 bool menu_mostrar_descripcion(void*menu, void* contexto);
+
+/*
+ * Devuelve la cantidad de opciones ingresada en el menu.
+ */
+
+size_t menu_cantidad(menu_t* menu);
 
 /*
  * Crea un TDA opcion a partir de los datos pasados por parametro y lo inserta en el menu.

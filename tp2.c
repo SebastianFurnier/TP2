@@ -64,7 +64,7 @@ bool mostrar_pokemones(void* menu, void* contexto)
 
 }
 
-bool cargar_hospital(void* contexto, void* contexto_aux)
+bool cargar_hospital(void* menu, void* contexto_aux)
 {
 	char nombre_archivo[MAX_STRING];
 	printf("\nIngrese el nombre del archivo con los datos del hospital a cargar: ");

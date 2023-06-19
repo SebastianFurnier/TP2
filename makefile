@@ -4,6 +4,12 @@ CC = gcc
 
 all: clean valgrind-chanutron tp2
 
+correr-pruebas: compilar-pruebas
+	valgrind $(VALGRIND_FLAGS) ./pruebas
+
+compilar-pruebas:
+	$(CC) $(CFLAGS) ./pruebas_alumno.c ./menu/*.c ./src/*c -o pruebas
+
 correr: compilar
 	valgrind $(VALGRIND_FLAGS) ./tp2
 compilar:
@@ -14,7 +20,6 @@ valgrind-chanutron: pruebas_chanutron
 
 pruebas_chanutron: src/*.c pruebas_chanutron.c
 	$(CC) $(CFLAGS) src/*.c pruebas_chanutron.c -o pruebas_chanutron
-
 
 ejemplo: src/*.c tp2.c
 	$(CC) $(CFLAGS) src/*.c tp2.c -o tp2

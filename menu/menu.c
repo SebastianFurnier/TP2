@@ -32,7 +32,7 @@ int comparador(void* elemento_uno, void* elemento_dos)
 	opcion_t* aux_uno = (opcion_t*)elemento_uno;
 	char* titulo_aux = (char*)elemento_dos;
 
-	if (!aux_uno || strlen(elemento_dos) == 0)
+	if (!aux_uno || strlen(titulo_aux) == 0)
 		return ERROR;
 
 	int comparacion_uno = strcmp(aux_uno->titulo_uno, titulo_aux);
@@ -78,11 +78,17 @@ menu_t* crear_menu()
 
 bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto_aux)
 {
+	if (!menu || strlen(opcion) == 0)
+		return false;
+		
 	size_t largo = strlen(opcion);
 	char titulo_aux[largo];
 
 	strcpy(titulo_aux, opcion);
-	titulo_aux[largo-1] = '\0';
+
+	if (titulo_aux[largo-1] == '\n')
+		titulo_aux[largo-1] = '\0';
+
 	texto_a_minuscula(titulo_aux);
 
 	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
@@ -107,18 +113,24 @@ bool menu_mostrar_opciones(menu_t* menu)
 		return false;
 	
 	opcion_t* opcion_actual = (opcion_t*)lista_iterador_elemento_actual(iterador_opciones);
+	int cantidad_opciones_mostradas = 0;
 
 	printf("\nSeleccione una de las opciones:\n\n");
 
 	while (opcion_actual)
 	{
+		cantidad_opciones_mostradas++;
 		printf("- %s (%s).\n", opcion_actual->titulo_uno, opcion_actual->titulo_dos);
 		lista_iterador_avanzar(iterador_opciones);
 		opcion_actual = lista_iterador_elemento_actual(iterador_opciones);
 	}
 	
 	lista_iterador_destruir(iterador_opciones);
-	return true;
+
+	if (cantidad_opciones_mostradas == menu->cantidad_opciones)
+		return true;
+	
+	return false;
 }
 
 /*
@@ -146,6 +158,13 @@ bool menu_mostrar_descripcion(void* menu, void* contexto)
 	return true;
 }
 
+size_t menu_cantidad(menu_t* menu)
+{
+	if (!menu)
+		return 0;
+	return menu->cantidad_opciones;
+}
+
 /*
  * Funcion privada del TDA. Inserta la opcion en el menu pasado a la funcion.
  */
@@ -166,7 +185,7 @@ bool insertar_opcion_menu(menu_t* menu, opcion_t* nueva_opcion)
 
 bool crear_opcion(menu_t* menu, char* titulo_uno, char* titulo_dos, char* descripcion, bool (*f)(void*, void*))
 {
-	if ((strlen(titulo_uno) == 0 && strlen(titulo_dos) == 0) || !f)
+	if ((strlen(titulo_uno) == 0 && strlen(titulo_dos) == 0) || !f || !menu)
 		return false;
 
 	opcion_t* nueva_opcion = malloc(sizeof(opcion_t));
