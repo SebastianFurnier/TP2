@@ -1,5 +1,7 @@
 #include "./menu/menu.c"
+#include "./menu/hash.h"
 #include "./src/tp1.h"
+
 
 #define MAX_STRING 20
 
@@ -16,9 +18,9 @@ bool listar_pokemones_aux(pokemon_t* pokemon, void* aux)
 	if(!pokemon)
 		return false;
 	printf("Nombre: %s.\n", pokemon_nombre(pokemon));
-	printf("	ID: %lu.\n", pokemon_id(pokemon));
-	printf("	Salud: %lu.\n", pokemon_salud(pokemon));
-	printf("	Entrenador: %s.\n\n", pokemon_entrenador(pokemon));
+	printf("ID: %lu.\n", pokemon_id(pokemon));
+	printf("Salud: %lu.\n", pokemon_salud(pokemon));
+	printf("Entrenador: %s.\n\n", pokemon_entrenador(pokemon));
 	return true;
 }
 
@@ -28,7 +30,7 @@ bool listar_pokemones(void* menu, void* contexto)
 
 	if (!hospital)
 		return false;
-	printf("\nInformacion detallada de todos los pokemones almacenados en el hospital activo:\n");
+	printf("\nInformacion detallada de todos los pokemones almacenados en el hospital activo:\n\n");
 	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital);
 	size_t cantidad_recorridos = hospital_a_cada_pokemon(hospital, listar_pokemones_aux, NULL);
 
@@ -38,7 +40,7 @@ bool listar_pokemones(void* menu, void* contexto)
 
 }
 
-bool nombre_pokemones_aux(pokemon_t* pokemon, void* aux)
+bool mostrar_pokemones_aux(pokemon_t* pokemon, void* aux)
 {
 	if(!pokemon)
 		return false;
@@ -46,7 +48,7 @@ bool nombre_pokemones_aux(pokemon_t* pokemon, void* aux)
 	return true;
 }
 
-bool nombre_pokemones(void* menu, void* contexto)
+bool mostrar_pokemones(void* menu, void* contexto)
 {	
 	hospital_t* hospital = *(hospital_t**)contexto;
 
@@ -54,7 +56,7 @@ bool nombre_pokemones(void* menu, void* contexto)
 		return false;
 	printf("\nNombre de todos los pokemones almacenados en el hospital activo:\n");
 	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital);
-	size_t cantidad_recorridos = hospital_a_cada_pokemon(hospital, nombre_pokemones_aux, NULL);
+	size_t cantidad_recorridos = hospital_a_cada_pokemon(hospital, mostrar_pokemones_aux, NULL);
 
 	if (cantidad_pokemones != cantidad_recorridos)
 		return false;
@@ -87,14 +89,15 @@ void manejar_opciones(menu_t* menu)
 	bool continuar = true;
 	char buffer[MAX_STRING];
 
-	hospital_t* hospital_nuevo = NULL;
+	hospital_t* hospital_activo = NULL;
+	//hash_t* hash_hospitales = hash_crear(3);
 
 	while (continuar)
 	{
 		menu_mostrar_opciones(menu);
 		printf("\n--> ");
 		fgets(buffer, MAX_STRING, stdin);
-		continuar = menu_seleccionar_opcion(menu, buffer, menu, &hospital_nuevo);
+		continuar = menu_seleccionar_opcion(menu, buffer, &hospital_activo);
 	}
 }
 
@@ -134,27 +137,18 @@ int main()
 	char* titulo_dos_destruir = "destruir";
 	char* descripcion_destruir = "Destruye el hospital activo.";
 
-	opcion_t* opcion_salir = crear_opcion(titulo_uno_salir, titulo_dos_salir, descripcion_salir, terminar_programa);
-	opcion_t* opcion_ayuda = crear_opcion(titulo_uno_ayuda, titulo_dos_ayuda, descripcion_ayuda, menu_mostrar_ayuda);
-	opcion_t* opcion_cargar = crear_opcion(titulo_uno_cargar, titulo_dos_cargar, descripcion_cargar, cargar_hospital);
-	opcion_t* opcion_estado = crear_opcion(titulo_uno_estado, titulo_dos_estado, descripcion_estado, NULL);
-	opcion_t* opcion_activar = crear_opcion(titulo_uno_activar, titulo_dos_activar, descripcion_activar, NULL);
-	opcion_t* opcion_mostrar = crear_opcion(titulo_uno_mostrar, titulo_dos_mostrar, descripcion_mostrar, nombre_pokemones);
-	opcion_t* opcion_listar = crear_opcion(titulo_uno_listar, titulo_dos_listar, descripcion_listar, listar_pokemones);
-	opcion_t* opcion_dest = crear_opcion(titulo_uno_destruir, titulo_dos_destruir, descripcion_destruir, NULL);
-
-	insertar_opcion_menu(menu, opcion_salir);
-	insertar_opcion_menu(menu, opcion_ayuda);
-	insertar_opcion_menu(menu, opcion_cargar);
-	insertar_opcion_menu(menu, opcion_estado);
-	insertar_opcion_menu(menu, opcion_activar);
-	insertar_opcion_menu(menu, opcion_mostrar);
-	insertar_opcion_menu(menu, opcion_listar);
-	insertar_opcion_menu(menu, opcion_dest);
+	crear_opcion(menu, titulo_uno_salir, titulo_dos_salir, descripcion_salir, terminar_programa);
+	crear_opcion(menu, titulo_uno_ayuda, titulo_dos_ayuda, descripcion_ayuda, menu_mostrar_descripcion);
+	crear_opcion(menu, titulo_uno_cargar, titulo_dos_cargar, descripcion_cargar, cargar_hospital);
+	crear_opcion(menu, titulo_uno_estado, titulo_dos_estado, descripcion_estado, NULL);
+	crear_opcion(menu, titulo_uno_activar, titulo_dos_activar, descripcion_activar, NULL);
+	crear_opcion(menu, titulo_uno_mostrar, titulo_dos_mostrar, descripcion_mostrar, mostrar_pokemones);
+	crear_opcion(menu, titulo_uno_listar, titulo_dos_listar, descripcion_listar, listar_pokemones);
+	crear_opcion(menu, titulo_uno_destruir, titulo_dos_destruir, descripcion_destruir, NULL);
 
 	manejar_opciones(menu);
 
-	destruir_menu(menu);
+	menu_destruir(menu);
 
 	return 0;
 }

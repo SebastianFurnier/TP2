@@ -1,41 +1,51 @@
 #include "../src/tp1.h"
 #include "./lista.h"
+#include "menu.h"
 
-#include "string.h"
-#include "stdio.h"
 #include "ctype.h"
-#include "stdbool.h"
+#include "stdio.h"
+#include "string.h"
 
 #define CANT_MAX_TITULO 10
 #define CANT_MAX_DESCRIPCION 100
+#define ERROR -1
 
-typedef struct
+struct opcion
 {
 	char titulo_uno[CANT_MAX_TITULO];
 	char titulo_dos[CANT_MAX_TITULO];
 	bool (*funcion)(void*, void*);
 	char descripcion[CANT_MAX_DESCRIPCION];
-}opcion_t;
+};
 
-typedef struct menu
+struct menu
 {
 	lista_t* opciones;
 	size_t cantidad_opciones;
-}menu_t;
-
+};
+/*
+ * Funcion privada del TDA menu. Recibe dos parametros, el cual el primero es un TDA opcion y el segundo un string.
+ * Compara dicho string con los titulo almacenados en el TDA opcion, en caso de no encontrarse devuelve error.
+ */
 int comparador(void* elemento_uno, void* elemento_dos)
 {
 	opcion_t* aux_uno = (opcion_t*)elemento_uno;
 	char* titulo_aux = (char*)elemento_dos;
+
+	if (!aux_uno || strlen(elemento_dos) == 0)
+		return ERROR;
 
 	int comparacion_uno = strcmp(aux_uno->titulo_uno, titulo_aux);
 	int comparacion_dos = strcmp(aux_uno->titulo_dos, titulo_aux);
 
 	if (comparacion_uno == 0 || comparacion_dos == 0)
 		return 0;
-	return 1;
+	return ERROR;
 }
 
+/*
+ * Funcion privada del TDA menu, recibe un string y o convierte a minusculas.
+ */
 void texto_a_minuscula(char texto[])
 {
     int i = 0;
@@ -46,38 +56,55 @@ void texto_a_minuscula(char texto[])
     }
 }
 
-opcion_t* crear_opcion(char* titulo_uno, char* titulo_dos, char* descripcion, bool (*f)(void*, void*))
+menu_t* crear_menu()
 {
-	if ((strlen(titulo_uno) == 0 && strlen(titulo_dos) == 0)){
-		printf("No puede crearse una opcion sin titulo");
+	menu_t* nuevo_menu = malloc(sizeof(menu_t));
+
+	if (!nuevo_menu)
+		return NULL;
+
+	lista_t* lista_opciones = lista_crear();
+
+	if (!lista_opciones){
+		free(nuevo_menu);
 		return NULL;
 	}
-
-//	if (!f)
-//		return NULL;
-
-	opcion_t* nueva_opcion = malloc(sizeof(opcion_t));
-
-	if (!nueva_opcion)
-		return NULL;
-
-	strcpy(nueva_opcion->titulo_uno, titulo_uno);
-	strcpy(nueva_opcion->titulo_dos, titulo_dos);
-	strcpy(nueva_opcion->descripcion, descripcion);
-	nueva_opcion->funcion = f;
-
-	texto_a_minuscula(nueva_opcion->titulo_uno);
-	texto_a_minuscula(nueva_opcion->titulo_dos);
-	texto_a_minuscula(nueva_opcion->descripcion);
-
-	return nueva_opcion;
+	
+	nuevo_menu->opciones = lista_opciones;
+	nuevo_menu->cantidad_opciones = 0;
+	
+	return nuevo_menu;
 }
 
-void menu_mostrar_opciones(menu_t* menu)
+bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto_aux)
 {
+	size_t largo = strlen(opcion);
+	char titulo_aux[largo];
+
+	strcpy(titulo_aux, opcion);
+	titulo_aux[largo-1] = '\0';
+	texto_a_minuscula(titulo_aux);
+
+	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
+	
+	if (!opcion_actual)
+		return false;
+
+	if(opcion_actual->funcion(menu, contexto_aux))
+		return true;
+
+	return false;
+}
+
+bool menu_mostrar_opciones(menu_t* menu)
+{
+	if (!menu)
+		return false;
+
 	lista_iterador_t* iterador_opciones = lista_iterador_crear(menu->opciones);
+
 	if (!iterador_opciones)
-		return;
+		return false;
 	
 	opcion_t* opcion_actual = (opcion_t*)lista_iterador_elemento_actual(iterador_opciones);
 
@@ -89,73 +116,79 @@ void menu_mostrar_opciones(menu_t* menu)
 		lista_iterador_avanzar(iterador_opciones);
 		opcion_actual = lista_iterador_elemento_actual(iterador_opciones);
 	}
+	
 	lista_iterador_destruir(iterador_opciones);
+	return true;
 }
 
-bool mostrar_descripcion(void* opcion, void* contexto)
+/*
+ * Funcion privada del TDA, auxiliar de menu_mostrar_descripcion. Imprime por pantalla la descripcion alojada en cada
+ * TDA opcion.
+ */
+bool mostrar_descripcion_aux(void* opcion, void* contexto)
 {
-	if (!opcion)
-		return false;
 	opcion_t* opcion_actual = (opcion_t*)opcion;
+
+	if (!opcion_actual)
+		return false;
+
 	printf("\n- %s (%s): %s.\n",opcion_actual->titulo_uno, opcion_actual->titulo_dos, opcion_actual->descripcion);
 	return true;
 }
 
-bool menu_mostrar_ayuda(void* menu, void* contexto)
+bool menu_mostrar_descripcion(void* menu, void* contexto)
 {
 	menu_t* menu_aux = (menu_t*)menu;
-	size_t cantidad_recorrida = lista_con_cada_elemento(menu_aux->opciones, mostrar_descripcion, NULL);
+	size_t cantidad_recorrida = lista_con_cada_elemento(menu_aux->opciones, mostrar_descripcion_aux, NULL);
 
 	if(cantidad_recorrida != menu_aux->cantidad_opciones)
 		return false;
 	return true;
 }
 
-bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto, void* contexto_aux)
-{
-	size_t largo = strlen(opcion);
-	char titulo_aux[largo];
-	strcpy(titulo_aux, opcion);
-	titulo_aux[largo-1] = '\0';
-	texto_a_minuscula(titulo_aux);
-
-	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
-	if (!opcion_actual){
-		printf("\nIngrese una opcion valida.");
-		return true;
-	}
-
-	if(opcion_actual->funcion(contexto, contexto_aux))
-		return true;
-	return false;
-}
-
-menu_t* crear_menu()
-{
-	menu_t* nuevo_menu = malloc(sizeof(menu_t));
-	lista_t* lista_opciones = lista_crear();
-
-	if (!nuevo_menu || !lista_opciones)
-		return NULL;
-	
-	nuevo_menu->opciones = lista_opciones;
-	nuevo_menu->cantidad_opciones = 0;
-	
-	return nuevo_menu;
-}
-
-menu_t* insertar_opcion_menu(menu_t* menu, opcion_t* nueva_opcion)
+/*
+ * Funcion privada del TDA. Inserta la opcion en el menu pasado a la funcion.
+ */
+bool insertar_opcion_menu(menu_t* menu, opcion_t* nueva_opcion)
 {
 	if (!menu || !nueva_opcion)
-		return NULL;
+		return false;
+
 	void* puntero_valido = lista_insertar(menu->opciones, nueva_opcion);
+
 	if (!puntero_valido)
-		return NULL;
+		return false;
+
 	menu->cantidad_opciones++;
-	return menu;
+
+	return true;
 }
 
-void destruir_menu(menu_t* menu)
+bool crear_opcion(menu_t* menu, char* titulo_uno, char* titulo_dos, char* descripcion, bool (*f)(void*, void*))
+{
+	if ((strlen(titulo_uno) == 0 && strlen(titulo_dos) == 0) || !f)
+		return false;
+
+	opcion_t* nueva_opcion = malloc(sizeof(opcion_t));
+
+	if (!nueva_opcion)
+		return false;
+
+	strcpy(nueva_opcion->titulo_uno, titulo_uno);
+	strcpy(nueva_opcion->titulo_dos, titulo_dos);
+	strcpy(nueva_opcion->descripcion, descripcion);
+	nueva_opcion->funcion = f;
+
+	texto_a_minuscula(nueva_opcion->titulo_uno);
+	texto_a_minuscula(nueva_opcion->titulo_dos);
+	texto_a_minuscula(nueva_opcion->descripcion);
+
+	insertar_opcion_menu(menu, nueva_opcion);
+
+	return true;
+}
+
+void menu_destruir(menu_t* menu)
 {
 	lista_destruir_todo(menu->opciones, free);
 	free(menu);
