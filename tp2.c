@@ -1,14 +1,28 @@
 #include "./menu/menu.c"
-#include "./menu/hash.h"
 #include "./src/tp1.h"
 
 
 #define MAX_STRING 20
 
-bool terminar_programa(void* menu, void* hospital)
+typedef struct
 {
-	hospital_t* hospital_aux = *(hospital_t**)hospital;
-	hospital_destruir(hospital_aux);
+	lista_t* lista;
+	void* hospital;
+}datos_t;
+
+bool terminar_programa(void* menu, void* contexto)
+{
+	datos_t* datos = *(datos_t**)contexto;
+	lista_iterador_t* iterador = lista_iterador_crear(datos->lista);
+	hospital_t* hospital_actual = lista_iterador_elemento_actual(iterador);
+
+	while (hospital_actual){
+		hospital_destruir(hospital_actual);
+		lista_iterador_avanzar(iterador);
+		hospital_actual = lista_iterador_elemento_actual(iterador);
+	}
+	lista_iterador_destruir(iterador);
+	lista_destruir(datos->lista);
 	printf("\nAdios.\n");
 	return false;
 }
@@ -26,7 +40,8 @@ bool listar_pokemones_aux(pokemon_t* pokemon, void* aux)
 
 bool listar_pokemones(void* menu, void* contexto)
 {
-	hospital_t* hospital = *(hospital_t**)contexto;
+	datos_t* datos = *(datos_t**)contexto;
+	hospital_t* hospital = datos->hospital;
 
 	if (!hospital)
 		return false;
@@ -50,21 +65,56 @@ bool mostrar_pokemones_aux(pokemon_t* pokemon, void* aux)
 
 bool mostrar_pokemones(void* menu, void* contexto)
 {	
-	hospital_t* hospital = *(hospital_t**)contexto;
+	datos_t* datos = *(datos_t**)contexto;
+	hospital_t* hospital = (hospital_t*)datos->hospital;
 
 	if (!hospital)
 		return false;
+	
 	printf("\nNombre de todos los pokemones almacenados en el hospital activo:\n");
+
 	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital);
 	size_t cantidad_recorridos = hospital_a_cada_pokemon(hospital, mostrar_pokemones_aux, NULL);
 
 	if (cantidad_pokemones != cantidad_recorridos)
 		return false;
 	return true;
-
 }
 
-bool cargar_hospital(void* menu, void* contexto_aux)
+bool mostrar_hospitales(void* menu, void* contexto)
+{
+	datos_t* datos = *(datos_t**)contexto;
+
+	if (!datos){
+		printf("\nNo hay hospitales activos.\n");
+		return false;
+	}
+
+	hospital_t* hospital_actual;
+	lista_iterador_t* iterador = lista_iterador_crear(datos->lista);
+	int posicion = 0;
+
+	hospital_actual = lista_iterador_elemento_actual(iterador);
+
+	printf("\n\nHospitales cargados:\n");
+
+	while (hospital_actual != NULL)
+	{
+		printf("\nID: %d. Nombre: %s.\n", posicion, hospital_nombre(hospital_actual));
+		lista_iterador_avanzar(iterador);
+		hospital_actual = lista_iterador_elemento_actual(iterador);
+
+		posicion++;
+	}
+
+	if (datos->hospital != NULL)
+		printf("\nHospital activo: %s.\n", hospital_nombre(datos->hospital));
+
+	lista_iterador_destruir(iterador);
+	return true;
+}
+
+bool cargar_hospital(void* menu, void* contexto)
 {
 	char nombre_archivo[MAX_STRING];
 	printf("\nIngrese el nombre del archivo con los datos del hospital a cargar: ");
@@ -78,8 +128,60 @@ bool cargar_hospital(void* menu, void* contexto_aux)
 		printf("Fallo al cargar el archivo.\n");
 		return false;
 	}
-	*(hospital_t**)contexto_aux = hospital_nuevo;
+
+	datos_t* datos = *(datos_t**)contexto;
+	lista_insertar(datos->lista, hospital_nuevo);
+
 	printf("\nHospital cargado con exito.\n");
+
+	return true;
+}
+
+bool activar_hospital(void* menu, void* contexto)
+{
+	datos_t* datos = *(datos_t**)contexto;
+
+	if (!datos)
+		return false;
+	
+	mostrar_hospitales(NULL, contexto);
+	printf("\nIngrese un ID para activar un hospital: ");
+
+	size_t respuesta;
+	scanf("%lu", &respuesta);
+	fflush(stdin);
+
+	datos->hospital = lista_elemento_en_posicion(datos->lista, respuesta);
+
+	return true;
+}
+
+bool destruir_hospital(void* menu, void* contexto)
+{
+	datos_t* datos = *(datos_t**)contexto;
+
+	if(!datos->hospital)
+		return false;
+
+	
+	lista_iterador_t* iterador = lista_iterador_crear(datos->lista);
+	size_t posicion = 0;
+	hospital_t* hospital_actual = lista_iterador_elemento_actual(iterador);
+
+	while (hospital_actual != datos->hospital)
+	{
+		lista_iterador_avanzar(iterador);
+		hospital_actual = (hospital_t*)lista_iterador_avanzar(iterador);
+		posicion++;
+	}
+	
+	lista_quitar_de_posicion(datos->lista, posicion);
+
+	hospital_destruir(datos->hospital);
+	lista_iterador_destruir(iterador);
+	datos->hospital = NULL;
+
+	printf("\nHospital destruido con exito.\n");
 
 	return true;
 }
@@ -87,18 +189,27 @@ bool cargar_hospital(void* menu, void* contexto_aux)
 void manejar_opciones(menu_t* menu)
 {
 	bool continuar = true;
+	bool primer_ingreso = true;
 	char buffer[MAX_STRING];
 
-	hospital_t* hospital_activo = NULL;
-	//hash_t* hash_hospitales = hash_crear(3);
+	datos_t* datos = malloc(sizeof(datos_t));
+	datos->lista = lista_crear();
+	datos->hospital = NULL;
 
 	while (continuar)
 	{
+		if (!primer_ingreso){
+			printf("\nPresione cualquier tecla para continuar.\n");
+			getc(stdin);
+		}else{
+			primer_ingreso = false;
+		}
 		menu_mostrar_opciones(menu);
 		printf("\n--> ");
 		fgets(buffer, MAX_STRING, stdin);
-		continuar = menu_seleccionar_opcion(menu, buffer, &hospital_activo);
+		continuar = menu_seleccionar_opcion(menu, buffer, &datos);
 	}
+	free(datos);
 }
 
 int main()
@@ -140,11 +251,11 @@ int main()
 	crear_opcion(menu, titulo_uno_salir, titulo_dos_salir, descripcion_salir, terminar_programa);
 	crear_opcion(menu, titulo_uno_ayuda, titulo_dos_ayuda, descripcion_ayuda, menu_mostrar_descripcion);
 	crear_opcion(menu, titulo_uno_cargar, titulo_dos_cargar, descripcion_cargar, cargar_hospital);
-	crear_opcion(menu, titulo_uno_estado, titulo_dos_estado, descripcion_estado, NULL);
-	crear_opcion(menu, titulo_uno_activar, titulo_dos_activar, descripcion_activar, NULL);
+	crear_opcion(menu, titulo_uno_estado, titulo_dos_estado, descripcion_estado, mostrar_hospitales);
+	crear_opcion(menu, titulo_uno_activar, titulo_dos_activar, descripcion_activar, activar_hospital);
 	crear_opcion(menu, titulo_uno_mostrar, titulo_dos_mostrar, descripcion_mostrar, mostrar_pokemones);
 	crear_opcion(menu, titulo_uno_listar, titulo_dos_listar, descripcion_listar, listar_pokemones);
-	crear_opcion(menu, titulo_uno_destruir, titulo_dos_destruir, descripcion_destruir, NULL);
+	crear_opcion(menu, titulo_uno_destruir, titulo_dos_destruir, descripcion_destruir, destruir_hospital);
 
 	manejar_opciones(menu);
 

@@ -94,7 +94,7 @@ bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto_aux)
 	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
 	
 	if (!opcion_actual)
-		return false;
+		return true;
 
 	if(opcion_actual->funcion(menu, contexto_aux))
 		return true;
