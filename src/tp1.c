@@ -145,7 +145,7 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	return hospital;
 }
 
-char* hospital_nombre(hospital_t* hospital)
+char *hospital_nombre(hospital_t *hospital)
 {
 	if (!hospital)
 		return "";

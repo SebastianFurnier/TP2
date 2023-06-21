@@ -10,27 +10,25 @@
 #define CANT_MAX_DESCRIPCION 100
 #define ERROR -1
 
-struct opcion
-{
+struct opcion {
 	char titulo_uno[CANT_MAX_TITULO];
 	char titulo_dos[CANT_MAX_TITULO];
-	bool (*funcion)(void*, void*);
+	bool (*funcion)(void *, void *);
 	char descripcion[CANT_MAX_DESCRIPCION];
 };
 
-struct menu
-{
-	lista_t* opciones;
+struct menu {
+	lista_t *opciones;
 	size_t cantidad_opciones;
 };
 /*
  * Funcion privada del TDA menu. Recibe dos parametros, el cual el primero es un TDA opcion y el segundo un string.
  * Compara dicho string con los titulo almacenados en el TDA opcion, en caso de no encontrarse devuelve error.
  */
-int comparador(void* elemento_uno, void* elemento_dos)
+int comparador(void *elemento_uno, void *elemento_dos)
 {
-	opcion_t* aux_uno = (opcion_t*)elemento_uno;
-	char* titulo_aux = (char*)elemento_dos;
+	opcion_t *aux_uno = (opcion_t *)elemento_uno;
+	char *titulo_aux = (char *)elemento_dos;
 
 	if (!aux_uno || strlen(titulo_aux) == 0)
 		return ERROR;
@@ -48,88 +46,91 @@ int comparador(void* elemento_uno, void* elemento_dos)
  */
 void texto_a_minuscula(char texto[])
 {
-    int i = 0;
-    while (texto[i] != '\0')
-    {
-        texto[i] = (char)tolower((unsigned char)texto[i]);
-        i++;
-    }
+	int i = 0;
+	while (texto[i] != '\0') {
+		texto[i] = (char)tolower((unsigned char)texto[i]);
+		i++;
+	}
 }
 
-menu_t* crear_menu()
+menu_t *crear_menu()
 {
-	menu_t* nuevo_menu = malloc(sizeof(menu_t));
+	menu_t *nuevo_menu = malloc(sizeof(menu_t));
 
 	if (!nuevo_menu)
 		return NULL;
 
-	lista_t* lista_opciones = lista_crear();
+	lista_t *lista_opciones = lista_crear();
 
-	if (!lista_opciones){
+	if (!lista_opciones) {
 		free(nuevo_menu);
 		return NULL;
 	}
-	
+
 	nuevo_menu->opciones = lista_opciones;
 	nuevo_menu->cantidad_opciones = 0;
-	
+
 	return nuevo_menu;
 }
 
-bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto_aux)
+bool menu_seleccionar_opcion(menu_t *menu, char opcion[], void *contexto_aux)
 {
 	if (!menu || strlen(opcion) == 0)
 		return false;
-		
+
 	size_t largo = strlen(opcion);
 	char titulo_aux[largo];
 
 	strcpy(titulo_aux, opcion);
 
-	if (titulo_aux[largo-1] == '\n')
-		titulo_aux[largo-1] = '\0';
+	if (titulo_aux[largo - 1] == '\n')
+		titulo_aux[largo - 1] = '\0';
 
 	texto_a_minuscula(titulo_aux);
 
-	opcion_t* opcion_actual = lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
-	
+	opcion_t *opcion_actual =
+		lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
+
 	if (!opcion_actual)
 		return true;
 
-	if(opcion_actual->funcion(menu, contexto_aux))
+	if (opcion_actual->funcion(menu, contexto_aux))
 		return true;
 
 	return false;
 }
 
-bool menu_mostrar_opciones(menu_t* menu)
+bool menu_mostrar_opciones(menu_t *menu)
 {
 	if (!menu)
 		return false;
 
-	lista_iterador_t* iterador_opciones = lista_iterador_crear(menu->opciones);
+	lista_iterador_t *iterador_opciones =
+		lista_iterador_crear(menu->opciones);
 
 	if (!iterador_opciones)
 		return false;
-	
-	opcion_t* opcion_actual = (opcion_t*)lista_iterador_elemento_actual(iterador_opciones);
+
+	opcion_t *opcion_actual =
+		(opcion_t *)lista_iterador_elemento_actual(iterador_opciones);
 	int cantidad_opciones_mostradas = 0;
 
 	printf("\nSeleccione una de las opciones:\n\n");
 
-	while (opcion_actual)
-	{
+	while (opcion_actual) {
 		cantidad_opciones_mostradas++;
-		printf("- %s (%s).\n", opcion_actual->titulo_uno, opcion_actual->titulo_dos);
+		printf("- %s (%s).\n", opcion_actual->titulo_uno,
+		       opcion_actual->titulo_dos);
 		lista_iterador_avanzar(iterador_opciones);
-		opcion_actual = lista_iterador_elemento_actual(iterador_opciones);
+		opcion_actual =
+			lista_iterador_elemento_actual(iterador_opciones);
 	}
-	
+
 	lista_iterador_destruir(iterador_opciones);
 
 	if (cantidad_opciones_mostradas == menu->cantidad_opciones)
 		return true;
-	
+
 	return false;
 }
 
@@ -137,28 +138,30 @@ bool menu_mostrar_opciones(menu_t* menu)
  * Funcion privada del TDA, auxiliar de menu_mostrar_descripcion. Imprime por pantalla la descripcion alojada en cada
  * TDA opcion.
  */
-bool mostrar_descripcion_aux(void* opcion, void* contexto)
+bool mostrar_descripcion_aux(void *opcion, void *contexto)
 {
-	opcion_t* opcion_actual = (opcion_t*)opcion;
+	opcion_t *opcion_actual = (opcion_t *)opcion;
 
 	if (!opcion_actual)
 		return false;
 
-	printf("\n- %s (%s): %s.\n",opcion_actual->titulo_uno, opcion_actual->titulo_dos, opcion_actual->descripcion);
+	printf("\n- %s (%s): %s.\n", opcion_actual->titulo_uno,
+	       opcion_actual->titulo_dos, opcion_actual->descripcion);
 	return true;
 }
 
-bool menu_mostrar_descripcion(void* menu, void* contexto)
+bool menu_mostrar_descripcion(void *menu, void *contexto)
 {
-	menu_t* menu_aux = (menu_t*)menu;
-	size_t cantidad_recorrida = lista_con_cada_elemento(menu_aux->opciones, mostrar_descripcion_aux, NULL);
+	menu_t *menu_aux = (menu_t *)menu;
+	size_t cantidad_recorrida = lista_con_cada_elemento(
+		menu_aux->opciones, mostrar_descripcion_aux, NULL);
 
-	if(cantidad_recorrida != menu_aux->cantidad_opciones)
+	if (cantidad_recorrida != menu_aux->cantidad_opciones)
 		return false;
 	return true;
 }
 
-size_t menu_cantidad(menu_t* menu)
+size_t menu_cantidad(menu_t *menu)
 {
 	if (!menu)
 		return 0;
@@ -168,12 +171,12 @@ size_t menu_cantidad(menu_t* menu)
 /*
  * Funcion privada del TDA. Inserta la opcion en el menu pasado a la funcion.
  */
-bool insertar_opcion_menu(menu_t* menu, opcion_t* nueva_opcion)
+bool insertar_opcion_menu(menu_t *menu, opcion_t *nueva_opcion)
 {
 	if (!menu || !nueva_opcion)
 		return false;
 
-	void* puntero_valido = lista_insertar(menu->opciones, nueva_opcion);
+	void *puntero_valido = lista_insertar(menu->opciones, nueva_opcion);
 
 	if (!puntero_valido)
 		return false;
@@ -183,12 +186,13 @@ bool insertar_opcion_menu(menu_t* menu, opcion_t* nueva_opcion)
 	return true;
 }
 
-bool crear_opcion(menu_t* menu, char* titulo_uno, char* titulo_dos, char* descripcion, bool (*f)(void*, void*))
+bool crear_opcion(menu_t *menu, char *titulo_uno, char *titulo_dos,
+		  char *descripcion, bool (*f)(void *, void *))
 {
 	if ((strlen(titulo_uno) == 0 && strlen(titulo_dos) == 0) || !f || !menu)
 		return false;
 
-	opcion_t* nueva_opcion = malloc(sizeof(opcion_t));
+	opcion_t *nueva_opcion = malloc(sizeof(opcion_t));
 
 	if (!nueva_opcion)
 		return false;
@@ -207,7 +211,7 @@ bool crear_opcion(menu_t* menu, char* titulo_uno, char* titulo_dos, char* descri
 	return true;
 }
 
-void menu_destruir(menu_t* menu)
+void menu_destruir(menu_t *menu)
 {
 	lista_destruir_todo(menu->opciones, free);
 	free(menu);
