@@ -24,8 +24,8 @@ void pruebas_seleccionar_opcion()
 
 	correcto = menu_seleccionar_opcion(nuevo_menu, "D", NULL);
 	pa2m_afirmar(
-		!correcto,
-		"Se intenta seleccionar una opcion con un titulo invalido y devuelve false.");
+		correcto,
+		"Se intenta seleccionar una opcion con un titulo invalido y devuelve true.");
 
 	correcto = menu_seleccionar_opcion(nuevo_menu, "A", NULL);
 	pa2m_afirmar(

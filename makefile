@@ -4,7 +4,7 @@ CC = gcc
 
 all: clean valgrind-chanutron tp2
 
-correr-pruebas: compilar-pruebas
+valgrind-alumno: compilar-pruebas
 	valgrind $(VALGRIND_FLAGS) ./pruebas
 
 compilar-pruebas:

@@ -41,8 +41,11 @@ bool listar_pokemones(void *menu, void *contexto)
 	datos_t *datos = *(datos_t **)contexto;
 	hospital_t *hospital = datos->hospital;
 
-	if (!hospital)
-		return false;
+	if (!hospital) {
+		printf("\nNo hay hospitales activos.\n");
+		return true;
+	}
+
 	printf("\nInformacion detallada de todos los pokemones almacenados en el hospital activo:\n\n");
 	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital);
 	size_t cantidad_recorridos =
@@ -66,8 +69,10 @@ bool mostrar_pokemones(void *menu, void *contexto)
 	datos_t *datos = *(datos_t **)contexto;
 	hospital_t *hospital = (hospital_t *)datos->hospital;
 
-	if (!hospital)
-		return false;
+	if (!hospital) {
+		printf("\nNo hay hospitales activos.\n");
+		return true;
+	}
 
 	printf("\nNombre de todos los pokemones almacenados en el hospital activo:\n");
 
@@ -84,10 +89,8 @@ bool mostrar_hospitales(void *menu, void *contexto)
 {
 	datos_t *datos = *(datos_t **)contexto;
 
-	if (!datos) {
-		printf("\nNo hay hospitales activos.\n");
+	if (!datos)
 		return false;
-	}
 
 	hospital_t *hospital_actual;
 	lista_iterador_t *iterador = lista_iterador_crear(datos->lista);
@@ -127,7 +130,7 @@ bool cargar_hospital(void *menu, void *contexto)
 
 	if (!hospital_nuevo) {
 		printf("Fallo al cargar el archivo.\n");
-		return false;
+		return true;
 	}
 
 	datos_t *datos = *(datos_t **)contexto;
@@ -145,6 +148,10 @@ bool activar_hospital(void *menu, void *contexto)
 	if (!datos)
 		return false;
 
+	if (lista_vacia(datos->lista)) {
+		printf("\nNo hay hospitales cargados.\n");
+		return true;
+	}
 	mostrar_hospitales(NULL, contexto);
 	printf("\nIngrese un ID para activar un hospital: ");
 
