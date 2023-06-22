@@ -27,7 +27,7 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo);
 /*
  *Devuelve el nombre del archivo del hospital creado.
  */
-char* hospital_nombre(hospital_t* hospital);
+char *hospital_nombre(hospital_t *hospital);
 
 /**
  * Devuelve la cantidad de pokemon que son atendidos actualmente en el hospital.
