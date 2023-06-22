@@ -1,9 +1,11 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
+#include <stdbool.h>
+#include <stddef.h>
 
-#include "stdbool.h"
-#include "stddef.h"
+#include "../src/tp1.h"
+#include "./lista.h"
 
 typedef struct opcion opcion_t;
 typedef struct menu menu_t;

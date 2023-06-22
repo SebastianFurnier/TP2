@@ -2,19 +2,20 @@
 #include "./lista.h"
 #include "menu.h"
 
-#include "ctype.h"
-#include "stdio.h"
-#include "string.h"
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
-#define CANT_MAX_TITULO 10
-#define CANT_MAX_DESCRIPCION 100
+#define LETRAS_MAX_TITULO 10
+#define LETRAS_MAX_DESCRIPCION 100
 #define ERROR -1
+#define EXITO 0
 
 struct opcion {
-	char titulo_uno[CANT_MAX_TITULO];
-	char titulo_dos[CANT_MAX_TITULO];
+	char titulo_uno[LETRAS_MAX_TITULO];
+	char titulo_dos[LETRAS_MAX_TITULO];
 	bool (*funcion)(void *, void *);
-	char descripcion[CANT_MAX_DESCRIPCION];
+	char descripcion[LETRAS_MAX_DESCRIPCION];
 };
 
 struct menu {
@@ -25,24 +26,25 @@ struct menu {
  * Funcion privada del TDA menu. Recibe dos parametros, el cual el primero es un TDA opcion y el segundo un string.
  * Compara dicho string con los titulo almacenados en el TDA opcion, en caso de no encontrarse devuelve error.
  */
-int comparador(void *elemento_uno, void *elemento_dos)
+int comparador(void *elemento_uno, void *titulo_a_buscar)
 {
-	opcion_t *aux_uno = (opcion_t *)elemento_uno;
-	char *titulo_aux = (char *)elemento_dos;
+	opcion_t *opcion = (opcion_t *)elemento_uno;
+	char *titulo_aux = (char *)titulo_a_buscar;
 
-	if (!aux_uno || strlen(titulo_aux) == 0)
+	if (!opcion || strlen(titulo_aux) == 0)
 		return ERROR;
 
-	int comparacion_uno = strcmp(aux_uno->titulo_uno, titulo_aux);
-	int comparacion_dos = strcmp(aux_uno->titulo_dos, titulo_aux);
+	int comparacion_uno = strcmp(opcion->titulo_uno, titulo_aux);
+	int comparacion_dos = strcmp(opcion->titulo_dos, titulo_aux);
 
 	if (comparacion_uno == 0 || comparacion_dos == 0)
-		return 0;
+		return EXITO;
+
 	return ERROR;
 }
 
 /*
- * Funcion privada del TDA menu, recibe un string y o convierte a minusculas.
+ * Funcion privada del TDA menu, recibe un string y lo convierte a minusculas.
  */
 void texto_a_minuscula(char texto[])
 {
@@ -73,18 +75,19 @@ menu_t *crear_menu()
 	return nuevo_menu;
 }
 
-bool menu_seleccionar_opcion(menu_t *menu, char opcion[], void *contexto_aux)
+bool menu_seleccionar_opcion(menu_t *menu, char titulo_opcion_buscado[],
+			     void *contexto_aux)
 {
-	if (!menu || strlen(opcion) == 0)
+	if (!menu || strlen(titulo_opcion_buscado) == 0)
 		return false;
 
-	size_t largo = strlen(opcion);
-	char titulo_aux[largo];
+	size_t largo_titulo = strlen(titulo_opcion_buscado);
+	char titulo_aux[largo_titulo];
 
-	strcpy(titulo_aux, opcion);
+	strcpy(titulo_aux, titulo_opcion_buscado);
 
-	if (titulo_aux[largo - 1] == '\n')
-		titulo_aux[largo - 1] = '\0';
+	if (titulo_aux[largo_titulo - 1] == '\n')
+		titulo_aux[largo_titulo - 1] = '\0';
 
 	texto_a_minuscula(titulo_aux);
 
@@ -113,15 +116,19 @@ bool menu_mostrar_opciones(menu_t *menu)
 
 	opcion_t *opcion_actual =
 		(opcion_t *)lista_iterador_elemento_actual(iterador_opciones);
+
 	int cantidad_opciones_mostradas = 0;
 
 	printf("\nSeleccione una de las opciones:\n\n");
 
 	while (opcion_actual) {
 		cantidad_opciones_mostradas++;
+
 		printf("- %s (%s).\n", opcion_actual->titulo_uno,
 		       opcion_actual->titulo_dos);
+
 		lista_iterador_avanzar(iterador_opciones);
+
 		opcion_actual =
 			lista_iterador_elemento_actual(iterador_opciones);
 	}
@@ -153,11 +160,13 @@ bool mostrar_descripcion_aux(void *opcion, void *contexto)
 bool menu_mostrar_descripcion(void *menu, void *contexto)
 {
 	menu_t *menu_aux = (menu_t *)menu;
+
 	size_t cantidad_recorrida = lista_con_cada_elemento(
 		menu_aux->opciones, mostrar_descripcion_aux, NULL);
 
 	if (cantidad_recorrida != menu_aux->cantidad_opciones)
 		return false;
+
 	return true;
 }
 
@@ -176,9 +185,10 @@ bool insertar_opcion_menu(menu_t *menu, opcion_t *nueva_opcion)
 	if (!menu || !nueva_opcion)
 		return false;
 
-	void *puntero_valido = lista_insertar(menu->opciones, nueva_opcion);
+	lista_t *puntero_lista_aux =
+		lista_insertar(menu->opciones, nueva_opcion);
 
-	if (!puntero_valido)
+	if (!puntero_lista_aux)
 		return false;
 
 	menu->cantidad_opciones++;
@@ -206,9 +216,7 @@ bool crear_opcion(menu_t *menu, char *titulo_uno, char *titulo_dos,
 	texto_a_minuscula(nueva_opcion->titulo_dos);
 	texto_a_minuscula(nueva_opcion->descripcion);
 
-	insertar_opcion_menu(menu, nueva_opcion);
-
-	return true;
+	return insertar_opcion_menu(menu, nueva_opcion);
 }
 
 void menu_destruir(menu_t *menu)

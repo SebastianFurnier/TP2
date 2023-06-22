@@ -12,6 +12,12 @@ bool terminar_programa(void *menu, void *contexto)
 {
 	datos_t *datos = *(datos_t **)contexto;
 	lista_iterador_t *iterador = lista_iterador_crear(datos->lista);
+
+	if (!iterador) {
+		printf("\nError al cerrar el programa.\n");
+		return true;
+	}
+
 	hospital_t *hospital_actual = lista_iterador_elemento_actual(iterador);
 
 	while (hospital_actual) {
@@ -19,9 +25,12 @@ bool terminar_programa(void *menu, void *contexto)
 		lista_iterador_avanzar(iterador);
 		hospital_actual = lista_iterador_elemento_actual(iterador);
 	}
+
 	lista_iterador_destruir(iterador);
 	lista_destruir(datos->lista);
+
 	printf("\nAdios.\n");
+
 	return false;
 }
 
@@ -29,10 +38,12 @@ bool listar_pokemones_aux(pokemon_t *pokemon, void *aux)
 {
 	if (!pokemon)
 		return false;
+
 	printf("Nombre: %s.\n", pokemon_nombre(pokemon));
 	printf("ID: %lu.\n", pokemon_id(pokemon));
 	printf("Salud: %lu.\n", pokemon_salud(pokemon));
 	printf("Entrenador: %s.\n\n", pokemon_entrenador(pokemon));
+
 	return true;
 }
 
@@ -47,12 +58,16 @@ bool listar_pokemones(void *menu, void *contexto)
 	}
 
 	printf("\nInformacion detallada de todos los pokemones almacenados en el hospital activo:\n\n");
+
 	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital);
 	size_t cantidad_recorridos =
 		hospital_a_cada_pokemon(hospital, listar_pokemones_aux, NULL);
 
-	if (cantidad_pokemones != cantidad_recorridos)
-		return false;
+	if (cantidad_pokemones != cantidad_recorridos) {
+		printf("\nError al listar los pokemones.\n");
+		return true;
+	}
+
 	return true;
 }
 
@@ -60,7 +75,9 @@ bool mostrar_pokemones_aux(pokemon_t *pokemon, void *aux)
 {
 	if (!pokemon)
 		return false;
+
 	printf("%s.\n", pokemon_nombre(pokemon));
+
 	return true;
 }
 
@@ -80,8 +97,11 @@ bool mostrar_pokemones(void *menu, void *contexto)
 	size_t cantidad_recorridos =
 		hospital_a_cada_pokemon(hospital, mostrar_pokemones_aux, NULL);
 
-	if (cantidad_pokemones != cantidad_recorridos)
+	if (cantidad_pokemones != cantidad_recorridos) {
+		printf("\nError al mostrar los pokemones.\n");
 		return false;
+	}
+
 	return true;
 }
 
@@ -94,22 +114,24 @@ bool mostrar_hospitales(void *menu, void *contexto)
 
 	hospital_t *hospital_actual;
 	lista_iterador_t *iterador = lista_iterador_crear(datos->lista);
+
 	int posicion = 0;
 
 	hospital_actual = lista_iterador_elemento_actual(iterador);
 
 	printf("\n\nHospitales cargados:\n");
 
-	while (hospital_actual != NULL) {
+	while (hospital_actual) {
 		printf("\nID: %d. Nombre: %s.\n", posicion,
 		       hospital_nombre(hospital_actual));
+
 		lista_iterador_avanzar(iterador);
 		hospital_actual = lista_iterador_elemento_actual(iterador);
 
 		posicion++;
 	}
 
-	if (datos->hospital != NULL)
+	if (datos->hospital)
 		printf("\nHospital activo: %s.\n",
 		       hospital_nombre(datos->hospital));
 
@@ -125,6 +147,7 @@ bool cargar_hospital(void *menu, void *contexto)
 	fgets(nombre_archivo, MAX_STRING, stdin);
 
 	nombre_archivo[strlen(nombre_archivo) - 1] = '\0';
+
 	hospital_t *hospital_nuevo =
 		hospital_crear_desde_archivo(nombre_archivo);
 
@@ -168,8 +191,10 @@ bool destruir_hospital(void *menu, void *contexto)
 {
 	datos_t *datos = *(datos_t **)contexto;
 
-	if (!datos->hospital)
-		return false;
+	if (!datos->hospital) {
+		printf("\nNo hay hospitales activos.\n");
+		return true;
+	}
 
 	lista_iterador_t *iterador = lista_iterador_crear(datos->lista);
 	size_t posicion = 0;
@@ -197,30 +222,47 @@ void manejar_opciones(menu_t *menu)
 {
 	bool continuar = true;
 	bool primer_ingreso = true;
+
 	char buffer[MAX_STRING];
 
 	datos_t *datos = malloc(sizeof(datos_t));
+
+	if (!datos)
+		return;
+
 	datos->lista = lista_crear();
 	datos->hospital = NULL;
 
+	if (!datos->lista) {
+		free(datos);
+		return;
+	}
+
 	while (continuar) {
 		if (!primer_ingreso) {
-			printf("\nPresione cualquier tecla para continuar.\n");
-			getc(stdin);
+			printf("\nPresione Enter para continuar.\n");
+			getchar();
 		} else {
 			primer_ingreso = false;
 		}
+
 		menu_mostrar_opciones(menu);
+
 		printf("\n--> ");
 		fgets(buffer, MAX_STRING, stdin);
+
 		continuar = menu_seleccionar_opcion(menu, buffer, &datos);
 	}
+
 	free(datos);
 }
 
 int main()
 {
 	menu_t *menu = crear_menu();
+
+	if (!menu)
+		return 1;
 
 	char *titulo_uno_salir = "S";
 	char *titulo_dos_salir = "salir";
