@@ -14,7 +14,7 @@ typedef struct menu menu_t;
  * Crea un menu reservando la memoria necesaria, devolviendo un puntero al TDA creado o
  * NULL en caso de error.
  */
-menu_t* crear_menu();
+menu_t *crear_menu();
 
 /*
  * Recibe un menu, un string y un puntero auxiliar.
@@ -22,24 +22,24 @@ menu_t* crear_menu();
  * la funcion alojada en ella y devuelve true.
  * En caso de no encontrar la opcion o fallar la funcion devuelve false.
  */
-bool menu_seleccionar_opcion(menu_t* menu, char opcion[], void* contexto_aux);
+bool menu_seleccionar_opcion(menu_t *menu, char opcion[], void *contexto_aux);
 
 /*
  * Recibe un menu y muestra todas las opciones alojadas en el y devuelve true, 
  * en caso de fallar devuelve false.
  */
-bool menu_mostrar_opciones(menu_t* menu);
+bool menu_mostrar_opciones(menu_t *menu);
 
 /*
  * Muestra la descripcion alojada en cada TDA opcion.
  */
-bool menu_mostrar_descripcion(void*menu, void* contexto);
+bool menu_mostrar_descripcion(void *menu, void *contexto);
 
 /*
  * Devuelve la cantidad de opciones ingresada en el menu.
  */
 
-size_t menu_cantidad(menu_t* menu);
+size_t menu_cantidad(menu_t *menu);
 
 /*
  * Crea un TDA opcion a partir de los datos pasados por parametro y lo inserta en el menu.
@@ -47,11 +47,12 @@ size_t menu_cantidad(menu_t* menu);
  * funcion, devuelve false.
  * En caso de exito devuelve true.
  */
-bool crear_opcion(menu_t* menu, char* titulo_uno, char* titulo_dos, char* descripcion, bool (*f)(void*, void*));
+bool crear_opcion(menu_t *menu, char *titulo_uno, char *titulo_dos,
+		  char *descripcion, bool (*f)(void *, void *));
 
 /*
  * Destruye el menu y todas las opciones cargadas.
  */
-void menu_destruir(menu_t* menu);
+void menu_destruir(menu_t *menu);
 
 #endif /* __MENU_H__ */
