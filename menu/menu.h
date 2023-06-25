@@ -25,10 +25,10 @@ menu_t *crear_menu();
 bool menu_seleccionar_opcion(menu_t *menu, char opcion[], void *contexto_aux);
 
 /*
- * Recibe un menu y muestra todas las opciones alojadas en el y devuelve true, 
- * en caso de fallar devuelve false.
+ * Recibe un menu y (si mostrar es true) muestra todas las opciones alojadas en el y devuelve true, 
+ * en caso de fallar, no poder mostrar todas las opciones, devuelve false.
  */
-bool menu_mostrar_opciones(menu_t *menu);
+bool menu_mostrar_opciones(menu_t *menu, bool mostrar);
 
 /*
  * Muestra la descripcion alojada en cada TDA opcion.
@@ -40,6 +40,13 @@ bool menu_mostrar_descripcion(void *menu, void *contexto);
  */
 
 size_t menu_cantidad(menu_t *menu);
+
+/**
+ * Recibe un menu y un id, si estos son validos eliminar la opcion del menu. En caso de poder eliminarla
+ * devuelve true, caso contrario false.
+*/
+
+bool menu_quitar_opcion(menu_t *menu, size_t id);
 
 /*
  * Crea un TDA opcion a partir de los datos pasados por parametro y lo inserta en el menu.

@@ -96,7 +96,7 @@ bool menu_seleccionar_opcion(menu_t *menu, char titulo_opcion_buscado[],
 		lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
 
 	if (!opcion_actual)
-		return true;
+		return false;
 
 	if (opcion_actual->funcion(menu, contexto_aux))
 		return true;
@@ -104,7 +104,7 @@ bool menu_seleccionar_opcion(menu_t *menu, char titulo_opcion_buscado[],
 	return false;
 }
 
-bool menu_mostrar_opciones(menu_t *menu)
+bool menu_mostrar_opciones(menu_t *menu, bool mostrar)
 {
 	if (!menu)
 		return false;
@@ -120,13 +120,16 @@ bool menu_mostrar_opciones(menu_t *menu)
 
 	int cantidad_opciones_mostradas = 0;
 
-	printf("\nSeleccione una de las opciones:\n\n");
+	if (mostrar)
+		printf("\nSeleccione una de las opciones:\n\n");
 
 	while (opcion_actual) {
 		cantidad_opciones_mostradas++;
 
-		printf("- %s (%s).\n", opcion_actual->titulo_uno,
-		       opcion_actual->titulo_dos);
+		if (mostrar) {
+			printf("- %s (%s).\n", opcion_actual->titulo_uno,
+			       opcion_actual->titulo_dos);
+		}
 
 		lista_iterador_avanzar(iterador_opciones);
 
@@ -176,6 +179,24 @@ size_t menu_cantidad(menu_t *menu)
 	if (!menu)
 		return 0;
 	return menu->cantidad_opciones;
+}
+
+bool menu_quitar_opcion(menu_t *menu, size_t id)
+{
+	if (!menu)
+		return false;
+
+	if ((id > menu_cantidad(menu)))
+		return false;
+
+	opcion_t *opcion_a_eliminar =
+		(opcion_t *)lista_quitar_de_posicion(menu->opciones, id);
+
+	free(opcion_a_eliminar);
+
+	menu->cantidad_opciones--;
+
+	return true;
 }
 
 /*

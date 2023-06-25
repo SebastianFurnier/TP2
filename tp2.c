@@ -8,12 +8,10 @@ typedef struct {
 	void *hospital;
 } datos_t;
 
-typedef struct
-{
-	hospital_t* hospital;
-	char nombre[MAX_STRING];	
-}hospital_nombre_t;
-
+typedef struct {
+	hospital_t *hospital;
+	char nombre[MAX_STRING];
+} hospital_nombre_t;
 
 bool terminar_programa(void *menu, void *contexto)
 {
@@ -25,7 +23,8 @@ bool terminar_programa(void *menu, void *contexto)
 		return true;
 	}
 
-	hospital_nombre_t *hospital_actual = lista_iterador_elemento_actual(iterador);
+	hospital_nombre_t *hospital_actual =
+		lista_iterador_elemento_actual(iterador);
 
 	while (hospital_actual) {
 		hospital_destruir(hospital_actual->hospital);
@@ -58,7 +57,8 @@ bool listar_pokemones_aux(pokemon_t *pokemon, void *aux)
 bool listar_pokemones(void *menu, void *contexto)
 {
 	datos_t *datos = *(datos_t **)contexto;
-	hospital_nombre_t *hospital_actual = (hospital_nombre_t*)datos->hospital;
+	hospital_nombre_t *hospital_actual =
+		(hospital_nombre_t *)datos->hospital;
 
 	if (!hospital_actual) {
 		printf("\nNo hay hospitales activos.\n");
@@ -67,9 +67,10 @@ bool listar_pokemones(void *menu, void *contexto)
 
 	printf("\nInformacion detallada de todos los pokemones almacenados en el hospital activo:\n\n");
 
-	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital_actual->hospital);
-	size_t cantidad_recorridos =
-		hospital_a_cada_pokemon(hospital_actual->hospital, listar_pokemones_aux, NULL);
+	size_t cantidad_pokemones =
+		hospital_cantidad_pokemones(hospital_actual->hospital);
+	size_t cantidad_recorridos = hospital_a_cada_pokemon(
+		hospital_actual->hospital, listar_pokemones_aux, NULL);
 
 	if (cantidad_pokemones != cantidad_recorridos) {
 		printf("\nError al listar los pokemones.\n");
@@ -92,7 +93,8 @@ bool mostrar_pokemones_aux(pokemon_t *pokemon, void *aux)
 bool mostrar_pokemones(void *menu, void *contexto)
 {
 	datos_t *datos = *(datos_t **)contexto;
-	hospital_nombre_t *hospital_activo = (hospital_nombre_t *)datos->hospital;
+	hospital_nombre_t *hospital_activo =
+		(hospital_nombre_t *)datos->hospital;
 
 	if (!hospital_activo) {
 		printf("\nNo hay hospitales activos.\n");
@@ -101,9 +103,10 @@ bool mostrar_pokemones(void *menu, void *contexto)
 
 	printf("\nNombre de todos los pokemones almacenados en el hospital activo:\n");
 
-	size_t cantidad_pokemones = hospital_cantidad_pokemones(hospital_activo->hospital);
-	size_t cantidad_recorridos =
-		hospital_a_cada_pokemon(hospital_activo->hospital, mostrar_pokemones_aux, NULL);
+	size_t cantidad_pokemones =
+		hospital_cantidad_pokemones(hospital_activo->hospital);
+	size_t cantidad_recorridos = hospital_a_cada_pokemon(
+		hospital_activo->hospital, mostrar_pokemones_aux, NULL);
 
 	if (cantidad_pokemones != cantidad_recorridos) {
 		printf("\nError al mostrar los pokemones.\n");
@@ -139,11 +142,11 @@ bool mostrar_hospitales(void *menu, void *contexto)
 		posicion++;
 	}
 
-	hospital_nombre_t* hospital_activo = (hospital_nombre_t*)datos->hospital;
+	hospital_nombre_t *hospital_activo =
+		(hospital_nombre_t *)datos->hospital;
 
 	if (hospital_activo)
-		printf("\nHospital activo: %s.\n",
-		       hospital_activo->nombre);
+		printf("\nHospital activo: %s.\n", hospital_activo->nombre);
 
 	lista_iterador_destruir(iterador);
 	return true;
@@ -166,9 +169,9 @@ bool cargar_hospital(void *menu, void *contexto)
 		return true;
 	}
 
-	hospital_nombre_t* hospital_nombre = malloc(sizeof(hospital_nombre_t));
+	hospital_nombre_t *hospital_nombre = malloc(sizeof(hospital_nombre_t));
 
-	if (!hospital_nombre){
+	if (!hospital_nombre) {
 		hospital_destruir(hospital_nuevo);
 		return true;
 	}
@@ -210,7 +213,8 @@ bool activar_hospital(void *menu, void *contexto)
 bool destruir_hospital(void *menu, void *contexto)
 {
 	datos_t *datos = *(datos_t **)contexto;
-	hospital_nombre_t* hospital_activo = (hospital_nombre_t*)datos->hospital;
+	hospital_nombre_t *hospital_activo =
+		(hospital_nombre_t *)datos->hospital;
 
 	if (!datos->hospital) {
 		printf("\nNo hay hospitales activos.\n");
@@ -219,7 +223,8 @@ bool destruir_hospital(void *menu, void *contexto)
 
 	lista_iterador_t *iterador = lista_iterador_crear(datos->lista);
 	size_t posicion = 0;
-	hospital_nombre_t *hospital_actual = lista_iterador_elemento_actual(iterador);
+	hospital_nombre_t *hospital_actual =
+		lista_iterador_elemento_actual(iterador);
 
 	while (hospital_actual != hospital_activo) {
 		lista_iterador_avanzar(iterador);
@@ -245,6 +250,8 @@ void manejar_opciones(menu_t *menu)
 	bool continuar = true;
 	bool primer_ingreso = true;
 
+	printf("		Bienvenido al administrador de hospitales.\n\n");
+
 	char buffer[MAX_STRING];
 
 	datos_t *datos = malloc(sizeof(datos_t));
@@ -262,19 +269,22 @@ void manejar_opciones(menu_t *menu)
 
 	while (continuar) {
 		if (!primer_ingreso) {
-			printf("\nPresione Enter para continuar. ");
+			printf("\n			Presione Enter para continuar. ");
 			getchar();
 		} else {
 			primer_ingreso = false;
 		}
 
-		menu_mostrar_opciones(menu);
+		menu_mostrar_opciones(menu, true);
 
 		printf("\n--> ");
 		fgets(buffer, MAX_STRING, stdin);
 
 		continuar = menu_seleccionar_opcion(menu, buffer, &datos);
 	}
+
+	if (!continuar && (datos->lista != NULL))
+		terminar_programa(menu, &datos);
 
 	free(datos);
 }
