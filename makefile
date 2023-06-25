@@ -10,8 +10,12 @@ valgrind-alumno: compilar-pruebas
 compilar-pruebas:
 	$(CC) $(CFLAGS) ./pruebas_alumno.c ./menu/*.c ./src/*c -o pruebas
 
-correr: compilar
+correr-valgrind: compilar
 	valgrind $(VALGRIND_FLAGS) ./tp2
+
+correr:
+	./tp2
+
 compilar:
 	$(CC) $(CFLAGS) ./tp2.c ./menu/lista.c ./src/*.c -o tp2
 

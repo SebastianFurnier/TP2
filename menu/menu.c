@@ -14,14 +14,15 @@
 struct opcion {
 	char titulo_uno[LETRAS_MAX_TITULO];
 	char titulo_dos[LETRAS_MAX_TITULO];
-	bool (*funcion)(void *, void *);
 	char descripcion[LETRAS_MAX_DESCRIPCION];
+	bool (*funcion)(void *, void *);
 };
 
 struct menu {
 	lista_t *opciones;
 	size_t cantidad_opciones;
 };
+
 /*
  * Funcion privada del TDA menu. Recibe dos parametros, el cual el primero es un TDA opcion y el segundo un string.
  * Compara dicho string con los titulo almacenados en el TDA opcion, en caso de no encontrarse devuelve error.

@@ -11,7 +11,6 @@ struct _hospital_pkm_t {
 	pokemon_t **pokemones;
 	size_t cantidad_pokemon;
 	size_t cantidad_entrenadores;
-	char nombre[100];
 };
 
 void cerrar_destruir(hospital_t *hospital, FILE *archivo, pokemon_t *pokemon,
@@ -136,20 +135,12 @@ hospital_t *hospital_crear_desde_archivo(const char *nombre_archivo)
 	}
 
 	hospital->cantidad_pokemon = cantidad_pokemones;
-	strcpy(hospital->nombre, nombre_archivo);
 
 	ordenar_por_salud(hospital, cantidad_pokemones);
 
 	cerrar_destruir(NULL, archivo, NULL, aux_str);
 
 	return hospital;
-}
-
-char *hospital_nombre(hospital_t *hospital)
-{
-	if (!hospital)
-		return "";
-	return hospital->nombre;
 }
 
 size_t hospital_cantidad_pokemones(hospital_t *hospital)
