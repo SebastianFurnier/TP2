@@ -35,6 +35,7 @@ bool terminar_programa(void *menu, void *contexto)
 
 	lista_iterador_destruir(iterador);
 	lista_destruir(datos->lista);
+	datos->lista = NULL;
 
 	printf("\nAdios.\n");
 
@@ -283,7 +284,7 @@ void manejar_opciones(menu_t *menu)
 		continuar = menu_seleccionar_opcion(menu, buffer, &datos);
 	}
 
-	if (!continuar && (datos->lista != NULL))
+	if (!continuar && datos->lista)
 		terminar_programa(menu, &datos);
 
 	free(datos);
