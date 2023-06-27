@@ -92,8 +92,8 @@ bool menu_seleccionar_opcion(menu_t *menu, char titulo_opcion_buscado[],
 
 	texto_a_minuscula(titulo_aux);
 
-	opcion_t *opcion_actual =
-		lista_buscar_elemento(menu->lista_de_opciones, comparador, titulo_aux);
+	opcion_t *opcion_actual = lista_buscar_elemento(menu->lista_de_opciones,
+							comparador, titulo_aux);
 
 	if (!opcion_actual)
 		return false;
@@ -189,8 +189,8 @@ bool menu_quitar_opcion(menu_t *menu, size_t id)
 	if ((id > menu_cantidad(menu)))
 		return false;
 
-	opcion_t *opcion_a_eliminar =
-		(opcion_t *)lista_quitar_de_posicion(menu->lista_de_opciones, id);
+	opcion_t *opcion_a_eliminar = (opcion_t *)lista_quitar_de_posicion(
+		menu->lista_de_opciones, id);
 
 	free(opcion_a_eliminar);
 
