@@ -19,7 +19,7 @@ struct opcion {
 };
 
 struct menu {
-	lista_t *opciones;
+	lista_t *lista_de_opciones;
 	size_t cantidad_opciones;
 };
 
@@ -27,16 +27,16 @@ struct menu {
  * Funcion privada del TDA menu. Recibe dos parametros, el cual el primero es un TDA opcion y el segundo un string.
  * Compara dicho string con los titulo almacenados en el TDA opcion, en caso de no encontrarse devuelve error.
  */
-int comparador(void *elemento_uno, void *titulo_a_buscar)
+int comparador(void *opcion, void *titulo_a_buscar)
 {
-	opcion_t *opcion = (opcion_t *)elemento_uno;
+	opcion_t *opcion_aux = (opcion_t *)opcion;
 	char *titulo_aux = (char *)titulo_a_buscar;
 
 	if (!opcion || strlen(titulo_aux) == 0)
 		return ERROR;
 
-	int comparacion_uno = strcmp(opcion->titulo_uno, titulo_aux);
-	int comparacion_dos = strcmp(opcion->titulo_dos, titulo_aux);
+	int comparacion_uno = strcmp(opcion_aux->titulo_uno, titulo_aux);
+	int comparacion_dos = strcmp(opcion_aux->titulo_dos, titulo_aux);
 
 	if (comparacion_uno == 0 || comparacion_dos == 0)
 		return EXITO;
@@ -70,7 +70,7 @@ menu_t *crear_menu()
 		return NULL;
 	}
 
-	nuevo_menu->opciones = lista_opciones;
+	nuevo_menu->lista_de_opciones = lista_opciones;
 	nuevo_menu->cantidad_opciones = 0;
 
 	return nuevo_menu;
@@ -93,7 +93,7 @@ bool menu_seleccionar_opcion(menu_t *menu, char titulo_opcion_buscado[],
 	texto_a_minuscula(titulo_aux);
 
 	opcion_t *opcion_actual =
-		lista_buscar_elemento(menu->opciones, comparador, titulo_aux);
+		lista_buscar_elemento(menu->lista_de_opciones, comparador, titulo_aux);
 
 	if (!opcion_actual)
 		return false;
@@ -110,7 +110,7 @@ bool menu_mostrar_opciones(menu_t *menu, bool mostrar)
 		return false;
 
 	lista_iterador_t *iterador_opciones =
-		lista_iterador_crear(menu->opciones);
+		lista_iterador_crear(menu->lista_de_opciones);
 
 	if (!iterador_opciones)
 		return false;
@@ -166,7 +166,7 @@ bool menu_mostrar_descripcion(void *menu, void *contexto)
 	menu_t *menu_aux = (menu_t *)menu;
 
 	size_t cantidad_recorrida = lista_con_cada_elemento(
-		menu_aux->opciones, mostrar_descripcion_aux, NULL);
+		menu_aux->lista_de_opciones, mostrar_descripcion_aux, NULL);
 
 	if (cantidad_recorrida != menu_aux->cantidad_opciones)
 		return false;
@@ -190,7 +190,7 @@ bool menu_quitar_opcion(menu_t *menu, size_t id)
 		return false;
 
 	opcion_t *opcion_a_eliminar =
-		(opcion_t *)lista_quitar_de_posicion(menu->opciones, id);
+		(opcion_t *)lista_quitar_de_posicion(menu->lista_de_opciones, id);
 
 	free(opcion_a_eliminar);
 
@@ -208,7 +208,7 @@ bool insertar_opcion_menu(menu_t *menu, opcion_t *nueva_opcion)
 		return false;
 
 	lista_t *puntero_lista_aux =
-		lista_insertar(menu->opciones, nueva_opcion);
+		lista_insertar(menu->lista_de_opciones, nueva_opcion);
 
 	if (!puntero_lista_aux)
 		return false;
@@ -243,6 +243,6 @@ bool crear_opcion(menu_t *menu, char *titulo_uno, char *titulo_dos,
 
 void menu_destruir(menu_t *menu)
 {
-	lista_destruir_todo(menu->opciones, free);
+	lista_destruir_todo(menu->lista_de_opciones, free);
 	free(menu);
 }
