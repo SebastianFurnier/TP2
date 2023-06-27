@@ -27,9 +27,10 @@ Opciones: Las distintas opciones que se almacenan en el menu, estan implementada
 
 Elegi almacenar las opciones en una lista (guardada en el menu) principalmente pensando en la busqueda. Dado que el usuario puede buscar de 2 formas diferentes, ingresando el nombre completo de la opcion o solo una letra por ejemplo "C (cargar)", me fue mas facil pensar en recorrer la lista e ir comparando la eleccion del usuario con los titulos almacenados en cada tda opcion. Si bien tiene una desventaja de complejidad frente a, por ejemplo, una tabla de hash, tome esta decision bajo la suposicion de que un menu suele tener relativamente pocas opciones por lo que el tiempo de recorrido suele ser bajo.
 
-No use una tabla de hash dado que al ingresar una opcion, por ejemplo, "c" o  "cargar", la funcion de hash me llevaria a distintas posisicones de la tabla.
+No use una tabla de hash dado que al ingresar una opcion, por ejemplo "c" o  "cargar", la funcion de hash me llevaria a distintas posisicones de la tabla.
 
 La eleccion de opciones se hace en la funcion menu_seleccionar_opcion, esta recibe un string y lo convierte a minusculas en la funcion texto_a_minuscula. Tambien se tiene en consideracion reemplazar el ultimo caracter en caso de que haya sido ingresado leyendo la entrada estandar y este sea un salto de linea.
+Con esto garantizo que se seleccionara la opcion elegida ingresando tanto mayusculas como minusculas. Tampoco difiere si la seleccion proviene desde la entrada estandar o a travez de un string alojado en el stack. 
 
 ### Ejemplo:
 
@@ -44,7 +45,7 @@ Uso tambien la implementacion del tda lista para almacenar las opciones, la mism
 
 ## Respuestas a las preguntas teóricas.
 
-El vector dinamico en la estructura hospitales podria ser reemplazado por ABB, ordenando los pokemones en base a su salud. El unico problema que veo al reemplazar el vector dinamico, es en la funcion hospital_obtener_pokemon, ya que esta funcion devuelve un pokemon en base a su prioridad (nivel de salud). Esto podria solucionarse recorriendo el arbol INORDEN, llevar un conteo de los pokemones visitados y deteniendose cuando coincida con el numero de prioridad buscado.
+El vector dinamico en la estructura hospitales podria ser reemplazado por un ABB, ordenando los pokemones en base a su salud. El unico problema que veo al reemplazar el vector dinamico, es en la funcion hospital_obtener_pokemon, ya que esta funcion devuelve un pokemon en base a su prioridad (nivel de salud). Esto podria solucionarse recorriendo el arbol INORDEN, llevar un conteo de los pokemones visitados y deteniendose cuando coincida con el numero de prioridad buscado.
 
 Considero que no habria problema con las pruebas, al ser un dato abstracto un usuario no sabe de que manera esta implementado el hospital y sus operaciones dado que solo usa las funciones publicas definidas en el .h , estas seguirian teniendo las mismas firmas.
 

@@ -42,10 +42,9 @@ bool menu_mostrar_descripcion(void *menu, void *contexto);
 size_t menu_cantidad(menu_t *menu);
 
 /**
- * Recibe un menu y un id, si estos son validos eliminar la opcion del menu. En caso de poder eliminarla
+ * Recibe un menu y un id, si estos son validos elimina la opcion del menu. En caso de poder eliminarla
  * devuelve true, caso contrario false.
 */
-
 bool menu_quitar_opcion(menu_t *menu, size_t id);
 
 /*
