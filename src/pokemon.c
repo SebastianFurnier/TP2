@@ -3,35 +3,28 @@
 #include <stdio.h>
 #include "pokemon_privado.h"
 
-#define CANTIDAD_COMAS 3
+#define CANT_DATOS_CORRECTOS 4
 #define ERROR 0
 
 pokemon_t *pokemon_crear_desde_string(const char *string)
 {
-	if ((string == NULL) || (strcmp(string, "") == 0))
+	if ((!string) || (strcmp(string, "") == 0))
 		return NULL;
 
-	int comas_leidas = 0;
-	size_t largo_cadena = strlen(string);
-	int i = 0;
-
-	for (i = 0; i < largo_cadena; i++) {
-		if (string[i] == ',')
-			comas_leidas++;
-	}
-
-	if (comas_leidas != CANTIDAD_COMAS)
-		return NULL;
-
+	int elementos_leidos = 0;
 	pokemon_t *pokemon_creado = calloc(1, sizeof(pokemon_t));
 
-	if (pokemon_creado == NULL)
+	if (!pokemon_creado)
 		return NULL;
 
-	sscanf(string, "%zu,%[^,],%zu,%[^,]", &pokemon_creado->id,
+	elementos_leidos = sscanf(string, "%zu,%[^,],%zu,%[^,]", &pokemon_creado->id,
 	       pokemon_creado->nombre, &pokemon_creado->salud,
 	       pokemon_creado->nombre_entrenador);
 
+	if (elementos_leidos < CANT_DATOS_CORRECTOS){
+		pokemon_destruir(pokemon_creado);
+		return NULL;
+	}
 	return pokemon_creado;
 }
 
