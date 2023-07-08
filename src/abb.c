@@ -261,7 +261,8 @@ void abb_con_cada_elemento_inorden(nodo_abb_t *raiz,
 
 	abb_con_cada_elemento_inorden(raiz->izquierda, funcion, aux,
 				      invocaciones, continuar, recorrido);
-
+	if (!(*continuar))
+		return;
 	(*continuar) = evaluar_continuar(raiz, aux, invocaciones, funcion);
 
 	abb_con_cada_elemento_inorden(raiz->derecha, funcion, aux, invocaciones,
