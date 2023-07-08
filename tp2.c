@@ -20,11 +20,11 @@ typedef struct {
 
 bool terminar_programa(void *menu, void *hospitales)
 {
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
-	lista_iterador_t *iterador =
-		lista_iterador_crear(hospitales_aux->hospitales_cargados);
+	lista_iterador_t *iterador = lista_iterador_crear(
+		contenedor_hospitales->hospitales_cargados);
 
 	if (!iterador) {
 		printf("\nError al cerrar el programa.\n");
@@ -42,8 +42,8 @@ bool terminar_programa(void *menu, void *hospitales)
 	}
 
 	lista_iterador_destruir(iterador);
-	lista_destruir(hospitales_aux->hospitales_cargados);
-	hospitales_aux->hospitales_cargados = NULL;
+	lista_destruir(contenedor_hospitales->hospitales_cargados);
+	contenedor_hospitales->hospitales_cargados = NULL;
 
 	printf("\nAdios.\n");
 
@@ -65,11 +65,11 @@ bool listar_pokemones_aux(pokemon_t *pokemon, void *aux)
 
 bool listar_pokemones(void *menu, void *hospitales)
 {
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
 	datos_hospital_t *hospital_actual =
-		(datos_hospital_t *)hospitales_aux->hospital_activo;
+		(datos_hospital_t *)contenedor_hospitales->hospital_activo;
 
 	if (!hospital_actual) {
 		printf("\nNo hay hospitales activos.\n");
@@ -104,13 +104,13 @@ bool mostrar_pokemones_aux(pokemon_t *pokemon, void *aux)
 
 bool mostrar_pokemones(void *menu, void *hospitales)
 {
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
-	datos_hospital_t *hospital =
-		(datos_hospital_t *)hospitales_aux->hospital_activo;
+	datos_hospital_t *hospital_activo_aux =
+		(datos_hospital_t *)contenedor_hospitales->hospital_activo;
 
-	if (!hospital) {
+	if (!hospital_activo_aux) {
 		printf("\nNo hay hospitales activos.\n");
 		return false;
 	}
@@ -118,10 +118,10 @@ bool mostrar_pokemones(void *menu, void *hospitales)
 	printf("\nNombre de todos los pokemones almacenados en el hospital activo:\n");
 
 	size_t cantidad_pokemones =
-		hospital_cantidad_pokemones(hospital->hospital);
+		hospital_cantidad_pokemones(hospital_activo_aux->hospital);
 
 	size_t cantidad_recorridos = hospital_a_cada_pokemon(
-		hospital->hospital, mostrar_pokemones_aux, NULL);
+		hospital_activo_aux->hospital, mostrar_pokemones_aux, NULL);
 
 	if (cantidad_pokemones != cantidad_recorridos) {
 		printf("\nError al mostrar los pokemones.\n");
@@ -133,15 +133,15 @@ bool mostrar_pokemones(void *menu, void *hospitales)
 
 bool mostrar_hospitales(void *menu, void *hospitales)
 {
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
-	if (!hospitales)
+	if (!contenedor_hospitales)
 		return false;
 
 	datos_hospital_t *hospital_actual;
-	lista_iterador_t *iterador =
-		lista_iterador_crear(hospitales_aux->hospitales_cargados);
+	lista_iterador_t *iterador = lista_iterador_crear(
+		contenedor_hospitales->hospitales_cargados);
 
 	int posicion = 0;
 
@@ -159,11 +159,11 @@ bool mostrar_hospitales(void *menu, void *hospitales)
 		posicion++;
 	}
 
-	datos_hospital_t *hospital =
-		(datos_hospital_t *)hospitales_aux->hospital_activo;
+	datos_hospital_t *hospital_activo_aux =
+		(datos_hospital_t *)contenedor_hospitales->hospital_activo;
 
-	if (hospital)
-		printf("\nHospital activo: %s.\n", hospital->nombre);
+	if (hospital_activo_aux)
+		printf("\nHospital activo: %s.\n", hospital_activo_aux->nombre);
 
 	lista_iterador_destruir(iterador);
 	return true;
@@ -186,22 +186,22 @@ bool cargar_hospital(void *menu, void *hospitales)
 		return false;
 	}
 
-	datos_hospital_t *hospital_activo_aux =
+	datos_hospital_t *hospital_nuevo_datos =
 		malloc(sizeof(datos_hospital_t));
 
-	if (!hospital_activo_aux) {
+	if (!hospital_nuevo_datos) {
 		hospital_destruir(hospital_nuevo);
 		return false;
 	}
 
-	hospital_activo_aux->hospital = hospital_nuevo;
-	strcpy(hospital_activo_aux->nombre, nombre_archivo);
+	hospital_nuevo_datos->hospital = hospital_nuevo;
+	strcpy(hospital_nuevo_datos->nombre, nombre_archivo);
 
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
-	lista_insertar(hospitales_aux->hospitales_cargados,
-		       hospital_activo_aux);
+	lista_insertar(contenedor_hospitales->hospitales_cargados,
+		       hospital_nuevo_datos);
 
 	printf("\nHospital cargado con exito.\n");
 
@@ -210,13 +210,13 @@ bool cargar_hospital(void *menu, void *hospitales)
 
 bool activar_hospital(void *menu, void *hospitales)
 {
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
-	if (!hospitales_aux)
+	if (!contenedor_hospitales)
 		return false;
 
-	if (lista_vacia(hospitales_aux->hospitales_cargados)) {
+	if (lista_vacia(contenedor_hospitales->hospitales_cargados)) {
 		printf("\nNo hay hospitales cargados.\n");
 		return false;
 	}
@@ -227,35 +227,35 @@ bool activar_hospital(void *menu, void *hospitales)
 	scanf("%lu", &respuesta);
 	fflush(stdin);
 
-	hospitales_aux->hospital_activo = lista_elemento_en_posicion(
-		hospitales_aux->hospitales_cargados, respuesta);
+	contenedor_hospitales->hospital_activo = lista_elemento_en_posicion(
+		contenedor_hospitales->hospitales_cargados, respuesta);
 
-	hospitales_aux->id_hospital_activo = respuesta;
+	contenedor_hospitales->id_hospital_activo = respuesta;
 
 	return true;
 }
 
 bool destruir_hospital(void *menu, void *hospitales)
 {
-	registro_hospitales_t *hospitales_aux =
+	registro_hospitales_t *contenedor_hospitales =
 		*(registro_hospitales_t **)hospitales;
 
-	if (!hospitales_aux)
+	if (!contenedor_hospitales)
 		return false;
 
-	if (!hospitales_aux->hospital_activo) {
+	if (!contenedor_hospitales->hospital_activo) {
 		printf("\nNo hay hospitales activos.\n");
 		return false;
 	}
 
 	datos_hospital_t *hospital_activo_aux =
 		(datos_hospital_t *)lista_quitar_de_posicion(
-			hospitales_aux->hospitales_cargados,
-			hospitales_aux->id_hospital_activo);
+			contenedor_hospitales->hospitales_cargados,
+			contenedor_hospitales->id_hospital_activo);
 
 	hospital_destruir(hospital_activo_aux->hospital);
 	free(hospital_activo_aux);
-	hospitales_aux->hospital_activo = NULL;
+	contenedor_hospitales->hospital_activo = NULL;
 
 	printf("\nHospital destruido con exito.\n");
 
@@ -270,21 +270,21 @@ void manejar_opciones(menu_t *menu)
 
 	char buffer[MAX_STRING];
 
-	registro_hospitales_t *hospitales =
+	registro_hospitales_t *contenedor_hospitales =
 		malloc(sizeof(registro_hospitales_t));
 
-	if (!hospitales)
+	if (!contenedor_hospitales)
 		return;
 
-	hospitales->hospitales_cargados = lista_crear();
-	hospitales->hospital_activo = NULL;
+	contenedor_hospitales->hospitales_cargados = lista_crear();
+	contenedor_hospitales->hospital_activo = NULL;
 
-	if (!hospitales->hospitales_cargados) {
-		free(hospitales);
+	if (!contenedor_hospitales->hospitales_cargados) {
+		free(contenedor_hospitales);
 		return;
 	}
 
-	while (hospitales->hospitales_cargados) {
+	while (contenedor_hospitales->hospitales_cargados) {
 		if (!primer_ingreso) {
 			printf("\n			Presione Enter para continuar. ");
 			getchar();
@@ -297,9 +297,9 @@ void manejar_opciones(menu_t *menu)
 		printf("\n--> ");
 		fgets(buffer, MAX_STRING, stdin);
 
-		menu_seleccionar_opcion(menu, buffer, &hospitales);
+		menu_seleccionar_opcion(menu, buffer, &contenedor_hospitales);
 	}
-	free(hospitales);
+	free(contenedor_hospitales);
 }
 
 int main()

@@ -42,7 +42,12 @@ void cerrar_destruir(hospital_t *hospital, FILE *archivo, pokemon_t *pokemon)
 	return;
 }
 
-bool manejar_datos_archivo(hospital_t *hospital, FILE *archivo)
+/**
+ * Funcion Auxiliar de hospital_crear_desde_archivo.
+ * Maneja la lectura de datos desde el archivo pasado como puntero, si son correctos se crea el pokemon
+ * y se inserta en el hospital.
+*/
+bool manejar_datos_archivo_hospital(hospital_t *hospital, FILE *archivo)
 {
 	pokemon_t *nuevo_pokemon = NULL;
 	char datos_pokemon_archivo[MAX_DATOS_POKEMONES];
@@ -65,6 +70,11 @@ bool manejar_datos_archivo(hospital_t *hospital, FILE *archivo)
 	return true;
 }
 
+/**
+ * Funcion auxiliar de hospital_crear_desde_archivo.
+ * crea el hospital e incializa sus datos.
+*/
+
 hospital_t *crear_iniciar_hospital(FILE *archivo)
 {
 	hospital_t *hospital = malloc(sizeof(hospital_t));
@@ -83,7 +93,7 @@ hospital_t *crear_iniciar_hospital(FILE *archivo)
 		return NULL;
 	}
 
-	bool carga_exitosa = manejar_datos_archivo(hospital, archivo);
+	bool carga_exitosa = manejar_datos_archivo_hospital(hospital, archivo);
 
 	if (!carga_exitosa)
 		return NULL;
@@ -157,7 +167,7 @@ int hospital_aceptar_emergencias(hospital_t *hospital,
 	}
 
 	hospital->cantidad_pokemon =
-		hospital_cantidad_pokemones(hospital) + cant_pokes_ambulancia;
+		hospital->cantidad_pokemon + cant_pokes_ambulancia;
 	return (EXITO);
 }
 
