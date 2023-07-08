@@ -35,6 +35,7 @@ void cerrar_destruir(hospital_t *hospital, FILE *archivo, pokemon_t *pokemon)
 	abb_destruir_todo(hospital->pokemones, free);
 	free(hospital);
 	pokemon_destruir(pokemon);
+
 	if (archivo != NULL)
 		fclose(archivo);
 
