@@ -4,7 +4,7 @@
 #include "pokemon_privado.h"
 
 #define CANT_DATOS_CORRECTOS 4
-#define ERROR 0
+#define INVALID_ARGUMENT 0
 
 pokemon_t *pokemon_crear_desde_string(const char *string)
 {
@@ -76,14 +76,14 @@ char *pokemon_entrenador(pokemon_t *pokemon)
 size_t pokemon_salud(pokemon_t *pokemon)
 {
 	if (pokemon == NULL)
-		return ERROR;
+		return INVALID_ARGUMENT;
 	return pokemon->salud;
 }
 
 size_t pokemon_id(pokemon_t *pokemon)
 {
 	if (pokemon == NULL)
-		return ERROR;
+		return INVALID_ARGUMENT;
 	return pokemon->id;
 }
 

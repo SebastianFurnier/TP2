@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define ERROR 0
+#define INVALID_ARGUMENT 0
 
 typedef struct nodo {
 	void *elemento;
@@ -335,7 +335,7 @@ size_t lista_con_cada_elemento(lista_t *lista, bool (*funcion)(void *, void *),
 			       void *contexto)
 {
 	if ((lista == NULL) || (funcion == NULL) || (lista->tope == 0))
-		return ERROR;
+		return INVALID_ARGUMENT;
 
 	nodo_t *nodo_auxiliar;
 	size_t elementos_iterados = 1;
