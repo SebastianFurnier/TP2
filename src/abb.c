@@ -153,9 +153,9 @@ void *abb_buscar(abb_t *arbol, void *elemento)
 	if (!arbol || !arbol->nodo_raiz)
 		return NULL;
 	void **elemento_aux = NULL;
-	
-	elemento_aux = abb_buscar_recursivo(
-		arbol->nodo_raiz, elemento, arbol->comparador, elemento_aux);
+
+	elemento_aux = abb_buscar_recursivo(arbol->nodo_raiz, elemento,
+					    arbol->comparador, elemento_aux);
 	return elemento_aux;
 }
 
@@ -204,7 +204,8 @@ void abb_destruir_todo(abb_t *arbol, void (*destructor)(void *))
 	return;
 }
 
-bool evaluar_continuar(nodo_abb_t *raiz, void *aux, size_t *invocaciones, bool (*funcion)(void *, void *))
+bool evaluar_continuar(nodo_abb_t *raiz, void *aux, size_t *invocaciones,
+		       bool (*funcion)(void *, void *))
 {
 	if (!raiz || !funcion)
 		return false;

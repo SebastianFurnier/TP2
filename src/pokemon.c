@@ -17,11 +17,12 @@ pokemon_t *pokemon_crear_desde_string(const char *string)
 	if (!pokemon_creado)
 		return NULL;
 
-	elementos_leidos = sscanf(string, "%zu,%[^,],%zu,%[^,]", &pokemon_creado->id,
-	       pokemon_creado->nombre, &pokemon_creado->salud,
-	       pokemon_creado->nombre_entrenador);
+	elementos_leidos = sscanf(string, "%zu,%[^,],%zu,%[^,]",
+				  &pokemon_creado->id, pokemon_creado->nombre,
+				  &pokemon_creado->salud,
+				  pokemon_creado->nombre_entrenador);
 
-	if (elementos_leidos < CANT_DATOS_CORRECTOS){
+	if (elementos_leidos < CANT_DATOS_CORRECTOS) {
 		pokemon_destruir(pokemon_creado);
 		return NULL;
 	}
