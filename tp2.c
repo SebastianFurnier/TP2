@@ -19,8 +19,10 @@ typedef struct {
 
 bool terminar_programa(void *menu, void *contexto)
 {
-	hospitales_cargados_activo_t *datos = *(hospitales_cargados_activo_t **)contexto;
-	lista_iterador_t *iterador = lista_iterador_crear(datos->hospitales_cargados);
+	hospitales_cargados_activo_t *datos =
+		*(hospitales_cargados_activo_t **)contexto;
+	lista_iterador_t *iterador =
+		lista_iterador_crear(datos->hospitales_cargados);
 
 	if (!iterador) {
 		printf("\nError al cerrar el programa.\n");
@@ -61,7 +63,8 @@ bool listar_pokemones_aux(pokemon_t *pokemon, void *aux)
 
 bool listar_pokemones(void *menu, void *contexto)
 {
-	hospitales_cargados_activo_t *datos = *(hospitales_cargados_activo_t **)contexto;
+	hospitales_cargados_activo_t *datos =
+		*(hospitales_cargados_activo_t **)contexto;
 	hospital_nombre_t *hospital_actual =
 		(hospital_nombre_t *)datos->hospital_activo;
 
@@ -97,7 +100,8 @@ bool mostrar_pokemones_aux(pokemon_t *pokemon, void *aux)
 
 bool mostrar_pokemones(void *menu, void *contexto)
 {
-	hospitales_cargados_activo_t *datos = *(hospitales_cargados_activo_t **)contexto;
+	hospitales_cargados_activo_t *datos =
+		*(hospitales_cargados_activo_t **)contexto;
 	hospital_nombre_t *hospital_activo =
 		(hospital_nombre_t *)datos->hospital_activo;
 
@@ -123,13 +127,15 @@ bool mostrar_pokemones(void *menu, void *contexto)
 
 bool mostrar_hospitales(void *menu, void *contexto)
 {
-	hospitales_cargados_activo_t *hospitales = *(hospitales_cargados_activo_t **)contexto;
+	hospitales_cargados_activo_t *hospitales =
+		*(hospitales_cargados_activo_t **)contexto;
 
 	if (!hospitales)
 		return false;
 
 	hospital_nombre_t *hospital_actual;
-	lista_iterador_t *iterador = lista_iterador_crear(hospitales->hospitales_cargados);
+	lista_iterador_t *iterador =
+		lista_iterador_crear(hospitales->hospitales_cargados);
 
 	int posicion = 0;
 
@@ -184,7 +190,8 @@ bool cargar_hospital(void *menu, void *contexto)
 	hospital_nombre->hospital_activo = hospital_nuevo;
 	strcpy(hospital_nombre->nombre, nombre_archivo);
 
-	hospitales_cargados_activo_t *datos = *(hospitales_cargados_activo_t **)contexto;
+	hospitales_cargados_activo_t *datos =
+		*(hospitales_cargados_activo_t **)contexto;
 	lista_insertar(datos->hospitales_cargados, hospital_nombre);
 
 	printf("\nHospital cargado con exito.\n");
@@ -194,7 +201,8 @@ bool cargar_hospital(void *menu, void *contexto)
 
 bool activar_hospital(void *menu, void *contexto)
 {
-	hospitales_cargados_activo_t *datos = *(hospitales_cargados_activo_t **)contexto;
+	hospitales_cargados_activo_t *datos =
+		*(hospitales_cargados_activo_t **)contexto;
 
 	if (!datos)
 		return false;
@@ -210,14 +218,16 @@ bool activar_hospital(void *menu, void *contexto)
 	scanf("%lu", &respuesta);
 	fflush(stdin);
 
-	datos->hospital_activo = lista_elemento_en_posicion(datos->hospitales_cargados, respuesta);
+	datos->hospital_activo = lista_elemento_en_posicion(
+		datos->hospitales_cargados, respuesta);
 
 	return true;
 }
 
 bool destruir_hospital(void *menu, void *contexto)
 {
-	hospitales_cargados_activo_t *datos = *(hospitales_cargados_activo_t **)contexto;
+	hospitales_cargados_activo_t *datos =
+		*(hospitales_cargados_activo_t **)contexto;
 	hospital_nombre_t *hospital_activo =
 		(hospital_nombre_t *)datos->hospital_activo;
 
@@ -229,7 +239,8 @@ bool destruir_hospital(void *menu, void *contexto)
 		return false;
 	}
 
-	lista_iterador_t *iterador = lista_iterador_crear(datos->hospitales_cargados);
+	lista_iterador_t *iterador =
+		lista_iterador_crear(datos->hospitales_cargados);
 	size_t posicion = 0;
 	hospital_nombre_t *hospital_actual =
 		lista_iterador_elemento_actual(iterador);
@@ -261,7 +272,8 @@ void manejar_opciones(menu_t *menu)
 
 	char buffer[MAX_STRING];
 
-	hospitales_cargados_activo_t *datos = malloc(sizeof(hospitales_cargados_activo_t));
+	hospitales_cargados_activo_t *datos =
+		malloc(sizeof(hospitales_cargados_activo_t));
 
 	if (!datos)
 		return;
