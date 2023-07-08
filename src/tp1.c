@@ -121,7 +121,7 @@ bool funcion_para_abb(void *pokemon, void *args)
 		*(bool (**)(pokemon_t *, void *))(*(void **)args);
 
 	void *aux_ptr = *((void **)args + 1);
-	return funcion((pokemon_t*)pokemon, aux_ptr);
+	return funcion((pokemon_t *)pokemon, aux_ptr);
 }
 
 size_t hospital_a_cada_pokemon(hospital_t *hospital,
